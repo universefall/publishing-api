@@ -55,6 +55,7 @@ func main() {
 	if errbitHost != "" && errbitApiKey != "" && errbitEnvName != "" {
 		errorNotifier = errornotifier.NewErrbitNotifier(errbitHost, errbitApiKey, errbitEnvName)
 	}
+	recoveryMiddleware := errornotifier.NewRecoveryMiddleware(errorNotifier)
 
 	httpMux := BuildHTTPMux(arbiterURL, liveContentStoreURL, draftContentStoreURL, errorNotifier)
 
@@ -68,6 +69,7 @@ func main() {
 
 	middleware := negroni.New()
 	middleware.Use(requestLogger)
+	middleware.Use(recoveryMiddleware)
 	middleware.UseHandler(httpMux)
 
 	// Set working dir for tablecloth if available. This is to allow restarts
