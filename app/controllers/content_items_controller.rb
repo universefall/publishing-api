@@ -5,6 +5,8 @@ class ContentItemsController < ApplicationController
   before_filter :validate_routing_key_fields, only: [:put_live_content_item]
 
   def put_live_content_item
+    notify_prototype(live_actions)
+
     with_url_arbitration do
       with_502_suppression do
         draft_content_store.put_content_item(
@@ -26,6 +28,8 @@ class ContentItemsController < ApplicationController
   end
 
   def put_draft_content_item
+    notify_prototype(draft_actions)
+
     with_url_arbitration do
       draft_response = with_502_suppression do
         draft_content_store.put_content_item(
@@ -76,5 +80,39 @@ private
     unless [:format, :update_type].all? {|field| content_item[field] =~ /\A[a-z0-9_]+\z/i}
       head :unprocessable_entity
     end
+  end
+
+  def notify_prototype(workflow_actions)
+    RestClient.post("http://localhost:4000/api/content-items", {
+        content_item: {
+          id: content_item[:content_id],
+          workflow_actions: workflow_actions
+        }
+      }.to_json,
+      content_type: :json,
+      accept: :json
+    )
+  end
+
+  def draft_actions
+    {
+      draft_content_store: {
+        state: "incomplete",
+        human_action: "Sending to draft GOV.UK",
+      },
+    }
+  end
+
+  def live_actions
+    draft_actions.merge(
+      live_content_store: {
+        state: "incomplete",
+        human_action: "Sending to live GOV.UK",
+      },
+      message_bus: {
+        state: "incomplete",
+        human_action: "Sending emails",
+      }
+    )
   end
 end
