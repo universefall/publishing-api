@@ -100,6 +100,7 @@ private
       draft_content_store: {
         state: "incomplete",
         human_action: "Sending to draft GOV.UK",
+        one_letter_code: "D",
       },
     }
   end
@@ -109,10 +110,12 @@ private
       live_content_store: {
         state: "incomplete",
         human_action: "Sending to live GOV.UK",
+        one_letter_code: "L",
       },
       message_bus: {
         state: "incomplete",
         human_action: "Sending emails",
+        one_letter_code: "E",
       }
     )
   end
