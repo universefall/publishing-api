@@ -86,7 +86,8 @@ private
     RestClient.post("http://localhost:4000/api/content-items", {
         content_item: {
           id: content_item[:content_id],
-          workflow_actions: workflow_actions
+          title: content_item[:title],
+          workflow_actions: workflow_actions,
         }
       }.to_json,
       content_type: :json,
