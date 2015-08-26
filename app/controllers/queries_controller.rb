@@ -10,6 +10,7 @@ private
     case query_name
     when "get_draft" then Query::GetDraft.new
     when "get_live" then Query::GetLive.new
+    when "get_live_version" then Query::GetLiveVersion.new
     else
       raise "Unknown query '#{query_name}'"
     end

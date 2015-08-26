@@ -1,6 +1,16 @@
 require "rails_helper"
 
 RSpec.describe "Commands controller", :type => :request do
+  let(:content_item) {
+    {
+      "content_id" => "b65478c3-9744-4537-a5d2-b5ee6648df3b",
+      "title" => "Original title",
+      "details" => {
+        "something" => "detailed"
+      }
+    }
+  }
+
   describe "POST /create-draft" do
     it "creates a draft and logs the event" do
       post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, format: :json
@@ -38,7 +48,7 @@ RSpec.describe "Commands controller", :type => :request do
         expect(Event.count).to eq(3)
         expect(DraftContentItem.count).to eq(1)
         expect(LiveContentItem.count).to eq(1)
-        expect(DraftContentItem.first.attributes).to eq(LiveContentItem.first.attributes)
+        expect(DraftContentItem.first.attributes).to eq(LiveContentItem.first.attributes.except("version"))
       end
     end
   end
@@ -100,10 +110,6 @@ RSpec.describe "Commands controller", :type => :request do
   end
 
   describe "GET /live/:content_id" do
-    let(:content_item) {
-      JSON.parse({content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", title: "Original title", details: {something: "detailed"}}.to_json)
-    }
-
     context "no published item exists" do
       it "returns a 404" do
         get "/live/b65478c3-9744-4537-a5d2-b5ee6648df3b"
@@ -141,7 +147,50 @@ RSpec.describe "Commands controller", :type => :request do
     end
   end
 
-  describe "GET /version/:content_id/:verno" do
-  end
+  describe "GET /live/:content_id/:version_number" do
+    context "a document which has been published once" do
+      before do
+        post "/create-draft", content_item.to_json, format: :json
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+      end
 
+      it "returns the document by version number" do
+        get "/live/b65478c3-9744-4537-a5d2-b5ee6648df3b/1"
+        expect(response.status).to eq(200)
+        parsed = JSON.parse(response.body)
+        content_item.each do |k,v|
+          expect(parsed[k]).to eq(v)
+        end
+      end
+    end
+
+    context "a document which has been published twice" do
+      before do
+        post "/create-draft", content_item.to_json, format: :json
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+        post "/redraft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+        post "/modify-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", title: "New title"}.to_json, format: :json
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+      end
+
+      it "returns the first published document for version 1" do
+        get "/live/b65478c3-9744-4537-a5d2-b5ee6648df3b/1"
+        expect(response.status).to eq(200)
+        parsed = JSON.parse(response.body)
+        expect(parsed['title']).to eq(content_item['title'])
+      end
+
+      it "returns the second published document for version 2" do
+        get "/live/b65478c3-9744-4537-a5d2-b5ee6648df3b/2"
+        expect(response.status).to eq(200)
+        parsed = JSON.parse(response.body)
+        expect(parsed['title']).to eq('New title')
+      end
+
+      it "returns a 404 error for version 3" do
+        get "/live/b65478c3-9744-4537-a5d2-b5ee6648df3b/3"
+        expect(response.status).to eq(404)
+      end
+    end
+  end
 end

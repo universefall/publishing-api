@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   post "/redraft", to: "commands#process_command", command_name: "redraft"
   get "/draft/:content_id", to: "queries#process_query", query_name: "get_draft"
   get "/live/:content_id", to: "queries#process_query", query_name: "get_live"
+  get "/live/:content_id/:version_number", to: "queries#process_query", query_name: "get_live_version"
 
   get '/healthcheck', :to => proc { [200, {}, ['OK']] }
 end

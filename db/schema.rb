@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150824154430) do
+ActiveRecord::Schema.define(version: 20150826220612) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,6 +36,21 @@ ActiveRecord::Schema.define(version: 20150824154430) do
     t.datetime "updated_at"
   end
 
+  create_table "live_content_item_versions", force: :cascade do |t|
+    t.string   "content_id"
+    t.integer  "version",           null: false
+    t.string   "base_path"
+    t.string   "locale"
+    t.string   "title"
+    t.string   "description"
+    t.string   "format"
+    t.datetime "public_updated_at"
+    t.json     "details",           null: false
+    t.integer  "user_id"
+  end
+
+  add_index "live_content_item_versions", ["content_id", "version"], name: "index_live_content_item_versions_on_content_id_and_version", unique: true, using: :btree
+
   create_table "live_content_items", force: :cascade do |t|
     t.string   "base_path"
     t.string   "content_id"
@@ -46,6 +61,7 @@ ActiveRecord::Schema.define(version: 20150824154430) do
     t.datetime "public_updated_at"
     t.json     "details",           null: false
     t.integer  "user_id"
+    t.integer  "version",           null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -54,5 +70,6 @@ ActiveRecord::Schema.define(version: 20150824154430) do
 
   add_foreign_key "draft_content_items", "users", on_delete: :restrict
   add_foreign_key "events", "users", on_delete: :restrict
+  add_foreign_key "live_content_item_versions", "users", on_delete: :restrict
   add_foreign_key "live_content_items", "users", on_delete: :restrict
 end
