@@ -1,5 +1,7 @@
 source "https://rubygems.org"
 
+gem "pg"
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails"
 gem "rails", "4.2.3"
 # Use SCSS for stylesheets
@@ -23,12 +25,14 @@ group :development, :test do
   gem "byebug"
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem "web-console", "~> 2.0"
-  gem "rspec-rails", "~> 3.3"
-  gem "simplecov", "0.10.0", require: false
-  gem "simplecov-rcov", "0.2.3", require: false
 end
 
 group :test do
+  gem "rspec-rails", "~> 3.3"
+  gem "rspec"
+  gem "database_cleaner"
+  gem "simplecov", "0.10.0", require: false
+  gem "simplecov-rcov", "0.2.3", require: false
   gem "webmock"
   gem "timecop"
 end

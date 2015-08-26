@@ -2,9 +2,9 @@ require File.expand_path('../boot', __FILE__)
 
 require "rails"
 # Pick the frameworks you want:
-# require "active_model/railtie"
+require "active_model/railtie"
 # require "active_job/railtie"
-# require "active_record/railtie"
+require "active_record/railtie"
 require "action_controller/railtie"
 # require "action_mailer/railtie"
 # require "action_view/railtie"
@@ -26,6 +26,7 @@ module PublishingAPI
     # config.time_zone = 'Central Time (US & Canada)'
 
     config.autoload_paths << "#{config.root}/lib"
+    config.autoload_paths << "#{config.root}/app"
     config.autoload_paths += Dir["#{config.root}/lib/**/"]
   end
 end

@@ -1,0 +1,15 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: publishing_api_development
+  pool: 5
+  username: publishing_api
+  password:
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: publishing_api_test
+  pool: 5
+  username: publishing_api
+  password:
