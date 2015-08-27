@@ -16,7 +16,7 @@ private
       user_id: event.user_id,
       action: event.name,
       event: event,
-      version: live_content_item.version
+      version: live_content_item.version + 1
     )
   end
 

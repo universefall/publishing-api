@@ -213,7 +213,32 @@ RSpec.describe "Commands controller", :type => :request do
         expect(parsed).to match([
           a_hash_including("action" => "create_draft", "version" => 1),
           a_hash_including("action" => "publish", "version" => 1),
-          a_hash_including("action" => "redraft", "version" => 1),
+          a_hash_including("action" => "redraft", "version" => 2),
+          a_hash_including("action" => "publish", "version" => 2),
+        ])
+      end
+    end
+
+    context "modifications of a draft" do
+      before do
+        post "/create-draft", content_item.to_json, headers
+        post "/modify-draft", {content_id: content_id, title: "New title"}.to_json, headers
+        post "/publish", {content_id: content_id}.to_json, headers
+        post "/redraft", {content_id: content_id}.to_json, headers
+        post "/modify-draft", {content_id: content_id, title: "New title"}.to_json, headers
+        post "/publish", {content_id: content_id}.to_json, headers
+      end
+
+      it "it records the modification in the history" do
+        get "/draft/#{content_item['content_id']}/history"
+
+        parsed = JSON.parse(response.body)
+        expect(parsed).to match([
+          a_hash_including("action" => "create_draft", "version" => 1),
+          a_hash_including("action" => "modify_draft", "version" => 1),
+          a_hash_including("action" => "publish", "version" => 1),
+          a_hash_including("action" => "redraft", "version" => 2),
+          a_hash_including("action" => "modify_draft", "version" => 2),
           a_hash_including("action" => "publish", "version" => 2),
         ])
       end
