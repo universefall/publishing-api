@@ -6,10 +6,22 @@ class Command::Publish < Command::Base
   def call
     create_or_update_live_content_item!
     LiveContentItemVersion.create!(new_attributes)
+    log_editorial_history_event!
     draft.destroy!
   end
 
 private
+  def log_editorial_history_event!
+    EditorialHistoryEvent.create(
+      timestamp: Time.zone.now,
+      content_id: content_id,
+      user_id: event.user_id,
+      action: event.name,
+      event: event,
+      version: next_version
+    )
+  end
+
   def create_or_update_live_content_item!
     if existing_live_content_item
       existing_live_content_item.update_attributes!(new_attributes)
@@ -77,12 +89,15 @@ private
     @draft ||= DraftContentItem.find_by_content_id!(content_id)
   end
 
-  def latest_content_item_version
-    @latest_content_item_version ||= LiveContentItemVersion.latest_version(content_id)
-  end
-
   def next_version
-    latest_content_item_version ? latest_content_item_version + 1 : 1
+    @next_version ||= begin
+      latest_version = LiveContentItemVersion.latest_version(content_id)
+      if latest_version
+        latest_version + 1
+      else
+        1
+      end
+    end
   end
 
   def existing_live_content_item
