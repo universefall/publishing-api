@@ -21,45 +21,59 @@ RSpec.describe EventProcessor do
   }
 
   describe '#process' do
-    it "records the event" do
-      subject.process(event_name, event_payload)
+    context "with a valid user id" do
+      let(:user) {
+        User.create!(name: "Example user")
+      }
 
-      expect(Event.count).to eq(1)
+      it "records the event" do
+        subject.process(event_name, user.id, event_payload)
 
-      event = Event.first
-      expect(event.name).to eq(event_name)
-      expect(event.payload).to eq(event_payload)
-    end
+        expect(Event.count).to eq(1)
 
-    it "returns the event" do
-      event = subject.process(event_name, event_payload)
-
-      expect(Event.first).to eq(event)
-    end
-
-    context "with a registered event handler" do
-      let(:handler) { double("handler", call: true) }
-
-      before do
-        subject.register_event_handler(event_name, handler)
+        event = Event.first
+        expect(event.name).to eq(event_name)
+        expect(event.payload).to eq(event_payload)
       end
 
-      it "invokes any registered event handlers" do
-        subject.process(event_name, event_payload)
+      it "returns the event" do
+        event = subject.process(event_name, user.id, event_payload)
 
-        expect(handler).to have_received(:call).with(Event.first)
+        expect(Event.first).to eq(event)
       end
 
-      it "does not persist the event if the event handler raises an exception" do
-        allow(handler).to receive(:call).and_raise
+      context "with a registered event handler" do
+        let(:handler) { double("handler", call: true) }
 
-        begin
-          subject.process(event_name, event_payload)
-        rescue
+        before do
+          subject.register_event_handler(event_name, handler)
         end
 
-        expect(Event.count).to eq(0)
+        it "invokes any registered event handlers" do
+          subject.process(event_name, user.id, event_payload)
+
+          expect(handler).to have_received(:call).with(Event.first)
+        end
+
+        it "does not persist the event if the event handler raises an exception" do
+          allow(handler).to receive(:call).and_raise
+
+          begin
+            subject.process(event_name, user.id, event_payload)
+          rescue
+          end
+
+          expect(Event.count).to eq(0)
+        end
       end
     end
+
+    context "without a user" do
+      it "raise an EventProcessor::InvalidUser error" do
+        expect {subject.process(event_name, nil, event_payload) }.to raise_error(EventProcessor::InvalidUser)
+
+      end
+    end
+
   end
 end

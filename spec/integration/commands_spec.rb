@@ -11,9 +11,26 @@ RSpec.describe "Commands controller", :type => :request do
     }
   }
 
+  context "No authenticated user" do
+    let(:headers) { { format: :json } }
+
+    specify "POST /create-draft gets a 401 unauthorized error" do
+      post "/create-draft", content_item.to_json, headers
+
+      expect(response.status).to eq(401)
+      expect(response.body).to eq({error: {code: 401, message: "unauthorized"}}.to_json)
+    end
+  end
+
+  let(:user) { User.create(name: "Example user") }
+
+  let(:headers) {
+    { 'X-Govuk-Authenticated-User' => user.id, format: :json }
+  }
+
   describe "POST /create-draft" do
     it "creates a draft and logs the event" do
-      post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, format: :json
+      post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, headers
       expect(DraftContentItem.count).to eq(1)
       expect(Event.count).to eq(1)
       expect(response.body).to eq(%Q({"event_id":#{Event.first.id}}))
@@ -23,11 +40,11 @@ RSpec.describe "Commands controller", :type => :request do
   describe "POST /publish" do
     context "a draft exists" do
       before do
-        post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, format: :json
+        post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, headers
       end
 
       it "converts the draft to a live document and removes the draft" do
-        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
         expect(DraftContentItem.count).to eq(0)
         expect(Event.count).to eq(2)
         expect(LiveContentItem.count).to eq(1)
@@ -39,12 +56,12 @@ RSpec.describe "Commands controller", :type => :request do
   describe "POST /redraft" do
     context "a published document exists" do
       before do
-        post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, format: :json
-        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+        post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, headers
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
       end
 
       it "redrafting a published document" do
-        post "/redraft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+        post "/redraft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
         expect(Event.count).to eq(3)
         expect(DraftContentItem.count).to eq(1)
         expect(LiveContentItem.count).to eq(1)
@@ -56,11 +73,11 @@ RSpec.describe "Commands controller", :type => :request do
   describe "POST /modify-draft" do
     context "a draft exists" do
       before do
-        post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", title: "Original title", details: {something: "detailed"}}.to_json, format: :json
+        post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", title: "Original title", details: {something: "detailed"}}.to_json, headers
       end
 
       it "updates top level attributes only, leaving details unchanged" do
-        post "/modify-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", title: "New title"}.to_json, format: :json
+        post "/modify-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", title: "New title"}.to_json, headers
         expect(Event.count).to eq(2)
         expect(DraftContentItem.count).to eq(1)
         expect(LiveContentItem.count).to eq(0)
@@ -70,7 +87,7 @@ RSpec.describe "Commands controller", :type => :request do
       end
 
       it "replaces the details hash entirely" do
-        post "/modify-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {something_else: "detailed"}}.to_json, format: :json
+        post "/modify-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {something_else: "detailed"}}.to_json, headers
         expect(DraftContentItem.count).to eq(1)
         attributes = DraftContentItem.first.attributes
         expect(attributes['title']).to eq("Original title")
@@ -95,7 +112,7 @@ RSpec.describe "Commands controller", :type => :request do
       }
 
       before do
-        post "/create-draft", draft_content_item.to_json, format: :json
+        post "/create-draft", draft_content_item.to_json, headers
       end
 
       it "returns the draft" do
@@ -120,7 +137,7 @@ RSpec.describe "Commands controller", :type => :request do
 
     context "draft exists" do
       before do
-        post "/create-draft", content_item.to_json, format: :json
+        post "/create-draft", content_item.to_json, headers
       end
 
       it "returns a 404" do
@@ -132,8 +149,8 @@ RSpec.describe "Commands controller", :type => :request do
 
     context "published document exists" do
       before do
-        post "/create-draft", content_item.to_json, format: :json
-        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+        post "/create-draft", content_item.to_json, headers
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
       end
 
       it "returns the published document" do
@@ -150,8 +167,8 @@ RSpec.describe "Commands controller", :type => :request do
   describe "GET /live/:content_id/:version_number" do
     context "a document which has been published once" do
       before do
-        post "/create-draft", content_item.to_json, format: :json
-        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+        post "/create-draft", content_item.to_json, headers
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
       end
 
       it "returns the document by version number" do
@@ -166,11 +183,11 @@ RSpec.describe "Commands controller", :type => :request do
 
     context "a document which has been published twice" do
       before do
-        post "/create-draft", content_item.to_json, format: :json
-        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
-        post "/redraft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
-        post "/modify-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", title: "New title"}.to_json, format: :json
-        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, format: :json
+        post "/create-draft", content_item.to_json, headers
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
+        post "/redraft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
+        post "/modify-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", title: "New title"}.to_json, headers
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
       end
 
       it "returns the first published document for version 1" do

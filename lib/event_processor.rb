@@ -1,13 +1,17 @@
 require 'event'
 
 class EventProcessor
+  class InvalidUser < StandardError; end
+
   def initialize
     @handlers = {}
   end
 
-  def process(name, payload)
+  def process(name, user_id, payload)
+    user = User.find_by_id(user_id) or raise InvalidUser
+
     Event.connection.transaction do
-      event = Event.create(name: name, payload: payload)
+      event = Event.create(name: name, user: user, payload: payload)
       handlers_for(name).each do |handler|
         handler.call(event)
       end
