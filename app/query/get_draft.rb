@@ -1,5 +1,5 @@
-class Query::GetDraft
-  def call(params)
+class Query::GetDraft < Query::Base
+  def call
     content_item = DraftContentItem.find_by_content_id(params[:content_id])
     if content_item
       Response::Success.new(content_item.attributes.except(:id))
