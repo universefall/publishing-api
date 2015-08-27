@@ -1,4 +1,4 @@
-class CreateEvents < ActiveRecord::Migration
+class CreateInitialSchema < ActiveRecord::Migration
   def change
     create_table :users do |t|
       t.string :name
