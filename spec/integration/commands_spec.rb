@@ -118,7 +118,29 @@ RSpec.describe "Commands controller", :type => :request do
         expect(Event.count).to eq(3)
         expect(DraftContentItem.count).to eq(1)
         expect(LiveContentItem.count).to eq(1)
-        expect(DraftContentItem.first.attributes).to eq(LiveContentItem.first.attributes.except("version"))
+        expect(DraftContentItem.first.attributes).to match(
+          a_hash_including(LiveContentItem.first.attributes.except("id", "version"))
+        )
+      end
+    end
+
+    context "a published document with a change note exists" do
+      let(:change_note) { "My change note" }
+
+      before do
+        post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, headers
+        post "/publish", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", update_type: "major", change_note: change_note}.to_json, headers
+      end
+
+      it "creates a draft excluding change_history" do
+        post "/redraft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b"}.to_json, headers
+        expect(Event.count).to eq(3)
+        expect(DraftContentItem.count).to eq(1)
+        expect(LiveContentItem.count).to eq(1)
+        expect(LiveContentItem.first.details['change_history']).to match([
+          a_hash_including("note" => change_note)
+        ])
+        expect(DraftContentItem.first.details).not_to match(a_hash_including('change_history'))
       end
     end
   end
@@ -261,6 +283,24 @@ RSpec.describe "Commands controller", :type => :request do
         get "/live/b65478c3-9744-4537-a5d2-b5ee6648df3b/3"
         expect(response.status).to eq(404)
       end
+    end
+  end
+
+  describe "publishing multiple major changes with change notes" do
+    before do
+      post "/create-draft", content_item.to_json, headers
+      post "/publish", content_item.merge(update_type: "major", change_note: "First change note").to_json, headers
+      post "/redraft", content_item.to_json, headers
+      post "/publish", content_item.merge(update_type: "major", change_note: "Second change note").to_json, headers
+    end
+
+    it "accumulates each change note in the change history" do
+      get "/live/#{content_item['content_id']}"
+      parsed = JSON.parse(response.body)
+      expect(parsed['details']['change_history']).to match([
+        a_hash_including("note" => "First change note"),
+        a_hash_including("note" => "Second change note")
+      ])
     end
   end
 end
