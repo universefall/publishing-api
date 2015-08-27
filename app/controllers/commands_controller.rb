@@ -3,8 +3,12 @@ class CommandsController < ApplicationController
     event = event_processor.process(params['command_name'], authenticated_user_id, request_json)
 
     render json: {event_id: event.id}
+  rescue EventProcessor::ProcessingError => error
+    response = error.response
+    render json: response, status: response.response_code
   rescue EventProcessor::InvalidUser
-    render json: {error: {code: 401, message: "unauthorized"}}, status: 401
+    e = Response::Unauthorized.new
+    render json: e, status: e.response_code
   end
 
 private

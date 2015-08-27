@@ -5,7 +5,7 @@ class Services
   def event_processor
     EventProcessor.new.tap do |event_processor|
       commands.each do |command|
-        event_processor.register_event_handler(command.name, command)
+        event_processor.register_event_handler(command.command_name, command)
       end
     end
   end
@@ -13,10 +13,10 @@ class Services
 private
   def commands
     [
-      Command::CreateDraft.new,
-      Command::ModifyDraft.new,
-      Command::Publish.new,
-      Command::Redraft.new
+      Command::CreateDraft,
+      Command::ModifyDraft,
+      Command::Publish,
+      Command::Redraft
     ]
   end
 end

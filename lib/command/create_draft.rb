@@ -1,11 +1,9 @@
-Command = Module.new unless defined?(Command)
-
-class Command::CreateDraft
-  def name
+class Command::CreateDraft < Command::Base
+  def self.command_name
     "create_draft"
   end
 
-  def call(event)
+  def call
     attrs = event.payload.reject { |k,_| ignored_attributes.include?(k) }
     DraftContentItem.create!(attrs)
   end

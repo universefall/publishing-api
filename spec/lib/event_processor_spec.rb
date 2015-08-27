@@ -43,16 +43,18 @@ RSpec.describe EventProcessor do
       end
 
       context "with a registered event handler" do
+        let(:handler_class) { double("handler class", new: handler) }
         let(:handler) { double("handler", call: true) }
 
         before do
-          subject.register_event_handler(event_name, handler)
+          subject.register_event_handler(event_name, handler_class)
         end
 
         it "invokes any registered event handlers" do
           subject.process(event_name, user.id, event_payload)
 
-          expect(handler).to have_received(:call).with(Event.first)
+          expect(handler_class).to have_received(:new).with(Event.first)
+          expect(handler).to have_received(:call)
         end
 
         it "does not persist the event if the event handler raises an exception" do
@@ -71,7 +73,6 @@ RSpec.describe EventProcessor do
     context "without a user" do
       it "raise an EventProcessor::InvalidUser error" do
         expect {subject.process(event_name, nil, event_payload) }.to raise_error(EventProcessor::InvalidUser)
-
       end
     end
 

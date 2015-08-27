@@ -28,6 +28,13 @@ RSpec.describe "Commands controller", :type => :request do
     { 'X-Govuk-Authenticated-User' => user.id, format: :json }
   }
 
+  around do |example|
+    # Freeze time
+    Timecop.freeze(Time.zone.parse("2011-01-01 10:10:10 +00:00")) do
+      example.call
+    end
+  end
+
   describe "POST /create-draft" do
     it "creates a draft and logs the event" do
       post "/create-draft", {content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b", details: {}}.to_json, headers
@@ -49,6 +56,52 @@ RSpec.describe "Commands controller", :type => :request do
         expect(Event.count).to eq(2)
         expect(LiveContentItem.count).to eq(1)
         expect(response.body).to eq(%Q({"event_id":#{Event.last.id}}))
+      end
+
+      let(:change_note) { "Changed something" }
+
+      context "a major change" do
+        before do
+          post "/publish", publish_command_payload.to_json, headers
+          @item = LiveContentItem.last
+        end
+
+        context "no change note provided" do
+          let(:publish_command_payload) {
+            {
+              content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b",
+              update_type: "major",
+            }
+          }
+
+          it "reports an error" do
+            expect(response.status).to eq(422)
+            response_json = JSON.parse(response.body)
+            expect(response_json.keys).to eq(["error"])
+            expect(response_json['error']['code']).to eq(422)
+            expect(response_json['error']['fields'].keys).to eq(['change_note'])
+            expect(response_json['error']['fields']['change_note']).to eq('required for major update')
+          end
+        end
+
+        context "change note provided" do
+          let(:publish_command_payload) {
+            {
+              content_id: "b65478c3-9744-4537-a5d2-b5ee6648df3b",
+              update_type: "major",
+              change_note: change_note,
+            }
+          }
+
+          it "records the change note in the details['change_history'] of the document" do
+            expect(@item.details['change_history']).to eq([
+              {
+                "public_timestamp" => Time.zone.now.iso8601,
+                "note" => change_note
+              }
+            ])
+          end
+        end
       end
     end
   end

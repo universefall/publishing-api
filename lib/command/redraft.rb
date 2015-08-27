@@ -1,11 +1,9 @@
-Command = Module.new unless defined?(Command)
-
-class Command::Redraft
-  def name
+class Command::Redraft < Command::Base
+  def self.command_name
     "redraft"
   end
 
-  def call(event)
+  def call
     content_id = event.payload['content_id']
     live = LiveContentItem.find_by_content_id!(content_id)
     DraftContentItem.create!(live.attributes.except("version"))

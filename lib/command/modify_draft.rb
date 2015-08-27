@@ -1,11 +1,9 @@
-Command = Module.new unless defined?(Command)
-
-class Command::ModifyDraft
-  def name
+class Command::ModifyDraft < Command::Base
+  def self.command_name
     "modify_draft"
   end
 
-  def call(event)
+  def call
     content_id = event.payload['content_id']
     draft = DraftContentItem.find_by_content_id!(content_id)
     event.payload.each do |k, v|
