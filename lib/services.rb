@@ -16,7 +16,8 @@ private
       Command::CreateDraft,
       Command::ModifyDraft,
       Command::Publish,
-      Command::Redraft
+      Command::Redraft,
+      Command::EditorialNote
     ]
   end
 end

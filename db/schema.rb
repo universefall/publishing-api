@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150826220612) do
+ActiveRecord::Schema.define(version: 20150827153909) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,6 +26,16 @@ ActiveRecord::Schema.define(version: 20150826220612) do
     t.datetime "public_updated_at"
     t.json     "details",           null: false
     t.integer  "user_id"
+  end
+
+  create_table "editorial_history_events", force: :cascade do |t|
+    t.string   "content_id", null: false
+    t.datetime "timestamp"
+    t.integer  "user_id"
+    t.string   "action"
+    t.integer  "version"
+    t.integer  "event_id"
+    t.string   "note"
   end
 
   create_table "events", force: :cascade do |t|
@@ -69,6 +79,8 @@ ActiveRecord::Schema.define(version: 20150826220612) do
   end
 
   add_foreign_key "draft_content_items", "users", on_delete: :restrict
+  add_foreign_key "editorial_history_events", "events"
+  add_foreign_key "editorial_history_events", "users"
   add_foreign_key "events", "users", on_delete: :restrict
   add_foreign_key "live_content_item_versions", "users", on_delete: :restrict
   add_foreign_key "live_content_items", "users", on_delete: :restrict

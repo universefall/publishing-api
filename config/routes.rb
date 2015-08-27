@@ -10,9 +10,11 @@ Rails.application.routes.draw do
 
   post "/create-draft", to: "commands#process_command", command_name: "create_draft"
   post "/modify-draft", to: "commands#process_command", command_name: "modify_draft"
+  post "/editorial-note", to: "commands#process_command", command_name: "editorial_note"
   post "/publish", to: "commands#process_command", command_name: "publish"
   post "/redraft", to: "commands#process_command", command_name: "redraft"
   get "/draft/:content_id", to: "queries#process_query", query_name: "get_draft"
+  get "/draft/:content_id/history", to: "queries#process_query", query_name: "get_draft_history"
   get "/live/:content_id", to: "queries#process_query", query_name: "get_live"
   get "/live/:content_id/:version_number", to: "queries#process_query", query_name: "get_live_version"
 

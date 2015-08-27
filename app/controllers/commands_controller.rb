@@ -1,8 +1,9 @@
 class CommandsController < ApplicationController
   def process_command
     event = event_processor.process(params['command_name'], authenticated_user_id, request_json)
-
     render json: {event_id: event.id}
+  rescue JSON::ParserError
+    head :bad_request
   rescue EventProcessor::ProcessingError => error
     response = error.response
     render json: response, status: response.response_code
@@ -16,10 +17,12 @@ private
     request.headers['X-Govuk-Authenticated-User']
   end
 
+  def request_body
+    @request_body ||= request.body.read
+  end
+
   def request_json
-    @request_json ||= JSON.parse(request.body.read)
-  rescue JSON::ParserError
-    head :bad_request
+    @request_json ||= JSON.parse(request_body)
   end
 
   def event_processor
