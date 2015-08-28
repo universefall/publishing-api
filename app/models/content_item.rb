@@ -25,4 +25,29 @@ class ContentItem
   validates :content_id, presence: true # uuid: true, allow_nil: true
   validates :format, :publishing_app, presence: true
   validates :state, inclusion: { in: ["draft", "published", "submitted", "withdrawn"] }
+
+  def as_json(*args)
+    super.merge(
+      available_workflow_actions: available_workflow_actions,
+    )
+  end
+
+  def available_workflow_actions
+    {
+      "draft" => [
+        "publish",
+        "submit",
+      ],
+      "published" => [
+        "withdraw",
+      ],
+      "submitted" => [
+        "reject",
+        "publish",
+      ],
+      "withdrawn" => [
+        "redraft",
+      ]
+    }[state]
+  end
 end

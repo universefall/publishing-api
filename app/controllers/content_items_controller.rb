@@ -2,7 +2,7 @@ class ContentItemsController < ApplicationController
   include URLArbitration
 
   before_filter :parse_request_data, only: [:create, :update]
-  before_filter :find_item, only: [:show, :update, :publish, :withdraw]
+  before_filter :find_item, except: [:index]
 
   attr_reader :item
 
@@ -35,8 +35,28 @@ class ContentItemsController < ApplicationController
     update_item(action)
   end
 
+  def submit
+    if item.state == "draft"
+      item.update(state: "submitted")
+      render json: {}, status: :ok
+      # send notifications
+    else
+      render json: {}, status: :method_not_allowed
+    end
+  end
+
+  def reject
+    if item.state == "submitted"
+      item.update(state: "draft")
+      render json: {}, status: :ok
+      # send notifications
+    else
+      render json: {}, status: :method_not_allowed
+    end
+  end
+
   def publish
-    if %w(withdrawn draft).include?(item.state)
+    if %w(submitted draft).include?(item.state)
       item.update(state: 'published')
       render json: {}, status: :ok
       # send notifications
@@ -55,6 +75,14 @@ class ContentItemsController < ApplicationController
     end
   end
 
+  def redraft
+    if item.state == "withdrawn"
+      update_item(:new_version)
+    else
+      render json: {}, status: :method_not_allowed
+    end
+  end
+
 private
 
   def forbidden_attributes
@@ -62,12 +90,15 @@ private
   end
 
   def find_item
-    @item = ContentItem.find_by(content_id: params[:content_id])
+    @item = ContentItem.where(content_id: params[:content_id]).last
   end
 
   def update_item(action)
     if action == :new_version
-      @item = ContentItem.new(content_id: item.content_id, version: item.version + 1)
+      new_version = item.clone
+      new_version.version += 1
+      new_version.state = "draft"
+      @item = new_version
     end
 
     item.assign_attributes(request_data)
