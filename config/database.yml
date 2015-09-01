@@ -4,7 +4,8 @@ development:
   database: publishing_api_development
   pool: 5
   username: publishing_api
-  password:
+  password: <%= ENV.fetch('PUBLISHING_API_DB_PASSWORD', '') %>
+  host: localhost
 
 test:
   adapter: postgresql
@@ -12,4 +13,5 @@ test:
   database: publishing_api_test
   pool: 5
   username: publishing_api
-  password:
+  password: <%= ENV.fetch('PUBLISHING_API_DB_PASSWORD', '') %>
+  host: localhost
