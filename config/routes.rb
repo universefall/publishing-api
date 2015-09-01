@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   post "/editorial-note", to: "commands#process_command", command_name: "editorial_note"
   post "/publish", to: "commands#process_command", command_name: "publish"
   post "/redraft", to: "commands#process_command", command_name: "redraft"
+  get "/drafts", to: "queries#process_query", query_name: "list_drafts"
   get "/draft/:content_id", to: "queries#process_query", query_name: "get_draft"
   get "/draft/:content_id/history", to: "queries#process_query", query_name: "get_draft_history"
   get "/live/:content_id", to: "queries#process_query", query_name: "get_live"

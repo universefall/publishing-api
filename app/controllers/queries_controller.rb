@@ -10,6 +10,7 @@ private
   def query_for(query_name)
     case query_name
     when "get_draft" then Query::GetDraft
+    when "list_drafts" then Query::ListDrafts
     when "get_draft_history" then Query::GetDraftHistory
     when "get_live" then Query::GetLive
     when "get_live_version" then Query::GetLiveVersion
