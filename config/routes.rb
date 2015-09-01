@@ -18,5 +18,7 @@ Rails.application.routes.draw do
   get "/live/:content_id", to: "queries#process_query", query_name: "get_live"
   get "/live/:content_id/:version_number", to: "queries#process_query", query_name: "get_live_version"
 
+  get "/events", to: "events#index"
+
   get '/healthcheck', :to => proc { [200, {}, ['OK']] }
 end

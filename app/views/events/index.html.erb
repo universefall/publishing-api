@@ -1,0 +1,39 @@
+<script>
+$(function() {
+  $(".toggle").click(function(event) {
+    if ($(this).text()=='show') {
+      $(this).text('hide');
+      $(this).parent().find('.content').show();
+    } else {
+      $(this).text('show');
+      $(this).parent().find('.content').hide();
+    }
+  });
+});
+</script>
+
+
+<table>
+ <thead>
+   <th>ID</th>
+   <th>Event Name</th>
+   <th>User</th>
+   <th>Date</th>
+   <th  style="width: 100%">Payload</th>
+ </thead>
+ <tbody>
+  <% @events.each do |event| %>
+    <tr>
+      <td><%= event.id %></td>
+      <td><%= event.name %></td>
+      <td><%= event.user.name %></td>
+      <td><%= event.created_at %></td>
+      <td class="left">
+        <span class="toggle">hide</span>
+        <span class="content"><%= ap(event.payload, indent: -2, html: true).html_safe %></span>
+      </td>
+
+    </tr>
+  <% end %>
+  </tbody>
+</table>
