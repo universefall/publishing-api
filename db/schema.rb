@@ -59,6 +59,10 @@ ActiveRecord::Schema.define(version: 20150827153909) do
     t.string   "format"
     t.datetime "public_updated_at"
     t.json     "details",           null: false
+    t.json     "routes",            null: false
+    t.json     "links",             null: false
+    t.string   "publishing_app"
+    t.string   "rendering_app"
     t.integer  "user_id"
   end
 

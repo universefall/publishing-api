@@ -11,6 +11,10 @@ class CreateLiveContentItemVersions < ActiveRecord::Migration
       t.datetime :public_updated_at
 
       t.json :details, null: false
+      t.json :routes, null: false
+      t.json :links, null: false
+      t.string :publishing_app
+      t.string :rendering_app
 
       t.references :user, foreign_key: { on_delete: :restrict }
     end

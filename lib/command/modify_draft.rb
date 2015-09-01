@@ -6,8 +6,8 @@ class Command::ModifyDraft < Command::Base
   def call
     content_id = event.payload['content_id']
     draft = DraftContentItem.find_by_content_id!(content_id)
-    event.payload.each do |k, v|
-      draft.send("#{k}=", v)
+    DraftContentItem.columns.map(&:name).each do |field|
+      draft.send("#{field}=", event.payload[field])
     end
     draft.save!
     log_editorial_history_event!
