@@ -16,15 +16,18 @@ ActiveRecord::Schema.define(version: 20150827153909) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "draft_content_items", force: :cascade do |t|
+  create_table "draft_content_items", primary_key: "content_id", force: :cascade do |t|
     t.string   "base_path"
-    t.string   "content_id"
     t.string   "locale"
     t.string   "title"
     t.string   "description"
     t.string   "format"
     t.datetime "public_updated_at"
     t.json     "details",           null: false
+    t.json     "routes",            null: false
+    t.json     "links",             null: false
+    t.string   "publishing_app"
+    t.string   "rendering_app"
     t.integer  "user_id"
   end
 
@@ -70,6 +73,10 @@ ActiveRecord::Schema.define(version: 20150827153909) do
     t.string   "format"
     t.datetime "public_updated_at"
     t.json     "details",           null: false
+    t.json     "routes",            null: false
+    t.json     "links",             null: false
+    t.string   "publishing_app"
+    t.string   "rendering_app"
     t.integer  "user_id"
     t.integer  "version",           null: false
   end
