@@ -11,8 +11,8 @@ class CreateLiveContentItemVersions < ActiveRecord::Migration
       t.datetime :public_updated_at
 
       t.json :details, null: false
-      t.json :routes, null: false
-      t.json :links, null: false
+      t.json :routes
+      t.json :links
       t.string :publishing_app
       t.string :rendering_app
 

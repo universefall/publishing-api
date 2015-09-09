@@ -13,9 +13,9 @@ class CreateInitialSchema < ActiveRecord::Migration
       t.timestamps
     end
 
-    create_table :draft_content_items, id: false do |t|
+    create_table :draft_content_items do |t|
       t.string :base_path
-      t.string :content_id, primary_key: true
+      t.string :content_id
       t.string :locale
       t.string :title
       t.string :description
@@ -23,8 +23,8 @@ class CreateInitialSchema < ActiveRecord::Migration
       t.datetime :public_updated_at
 
       t.json :details, null: false
-      t.json :routes, null: false
-      t.json :links, null: false
+      t.json :routes
+      t.json :links
       t.string :publishing_app
       t.string :rendering_app
 
@@ -41,8 +41,8 @@ class CreateInitialSchema < ActiveRecord::Migration
       t.datetime :public_updated_at
 
       t.json :details, null: false
-      t.json :routes, null: false
-      t.json :links, null: false
+      t.json :routes
+      t.json :links
       t.string :publishing_app
       t.string :rendering_app
 
