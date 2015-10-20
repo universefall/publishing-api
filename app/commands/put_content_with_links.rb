@@ -6,9 +6,9 @@ module Commands
         create_or_update_live_content_item!(draft_content_item)
         create_or_update_links!
       end
+      UrlReservation.reserve_path!(base_path, content_item[:publishing_app])
 
       if downstream
-        Adapters::UrlArbiter.call(base_path, content_item[:publishing_app])
         Adapters::DraftContentStore.call(base_path, content_item_without_access_limiting)
         Adapters::ContentStore.call(base_path, content_item_without_access_limiting)
 
