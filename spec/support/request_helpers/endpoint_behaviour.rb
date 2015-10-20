@@ -87,6 +87,26 @@ module RequestHelpers
         end
       end
     end
+
+    def validates_url_ownership
+      context "path has not already been registered" do
+        it "reserves the path for this publishing app" do
+          do_request
+
+          expect(UrlReservation.count).to eq(1)
+          expect(UrlReservation.first.path).to eq(base_path)
+          expect(UrlReservation.first.publishing_app).to eq(content_item[:publishing_app])
+        end
+      end
+
+      context "path has already been registered" do
+        it "should be successful if the publishing app matches" do
+        end
+
+        it "should be unsuccessful if the publishing app does not match" do
+        end
+      end
+    end
   end
 end
 
