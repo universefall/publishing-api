@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe PathReservationsController, type: :controller do
-  describe "reserve_url" do
+  describe "reserve_path" do
     context "with a valid path reservation request" do
       let(:payload) {
         { publishing_app: "Foo" }
