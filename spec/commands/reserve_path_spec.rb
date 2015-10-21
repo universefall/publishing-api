@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Commands::ReserveUrl do
+RSpec.describe Commands::ReservePath do
   describe "call" do
     context "with a new base_path" do
       let(:payload) {

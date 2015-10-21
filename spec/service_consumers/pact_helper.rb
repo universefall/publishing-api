@@ -59,7 +59,7 @@ Pact.provider_states_for "GDS API Adapters" do
     set_up do
       DatabaseCleaner.clean_with :truncation
 
-      FactoryGirl.create(:url_reservation, base_path: "/test-item", publishing_app: "publisher")
+      FactoryGirl.create(:path_reservation, base_path: "/test-item", publishing_app: "publisher")
     end
   end
 
