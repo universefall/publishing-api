@@ -41,28 +41,25 @@ Pact.provider_states_for "GDS API Adapters" do
     end
   end
 
-  [
-    "both content stores and url-arbiter empty",
-    "both content stores and the url-arbiter are empty"
-  ].each do |provide_state_title|
-    provider_state provide_state_title do
-      set_up do
-        DatabaseCleaner.clean_with :truncation
+  provider_state "both content stores are empty" do
+    set_up do
+      DatabaseCleaner.clean_with :truncation
 
-        stub_default_url_arbiter_responses
-        stub_request(:put, Regexp.new('\A' + Regexp.escape(Plek.find('content-store')) + "/content"))
-        stub_request(:put, Regexp.new('\A' + Regexp.escape(Plek.find('draft-content-store')) + "/content"))
-        stub_request(:delete, Regexp.new('\A' + Regexp.escape(Plek.find('content-store')) + "/publish-intent"))
-          .to_return(status: 404, body: "{}", headers: {"Content-Type" => "application/json"} )
-        stub_request(:put, Regexp.new('\A' + Regexp.escape(Plek.find('content-store')) + "/publish-intent"))
-          .to_return(status: 200, body: "{}", headers: {"Content-Type" => "application/json"} )
-      end
+      stub_default_url_arbiter_responses
+      stub_request(:put, Regexp.new('\A' + Regexp.escape(Plek.find('content-store')) + "/content"))
+      stub_request(:put, Regexp.new('\A' + Regexp.escape(Plek.find('draft-content-store')) + "/content"))
+      stub_request(:delete, Regexp.new('\A' + Regexp.escape(Plek.find('content-store')) + "/publish-intent"))
+        .to_return(status: 404, body: "{}", headers: {"Content-Type" => "application/json"} )
+      stub_request(:put, Regexp.new('\A' + Regexp.escape(Plek.find('content-store')) + "/publish-intent"))
+        .to_return(status: 200, body: "{}", headers: {"Content-Type" => "application/json"} )
     end
   end
 
-  provider_state "/test-item has been reserved in url-arbiter by the Publisher application" do
+  provider_state "the path /test-item has been reserved by the Publisher application" do
     set_up do
-      url_arbiter_has_registration_for("/test-item", "Publisher")
+      DatabaseCleaner.clean_with :truncation
+
+      FactoryGirl.create(:url_reservation, base_path: "/test-item", publishing_app: "publisher")
     end
   end
 
