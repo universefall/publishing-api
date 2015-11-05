@@ -72,6 +72,7 @@ module Commands
 
     def create_or_update_links!
       LinkSet.create_or_replace(content_id: content_id, links: content_item[:links]) do |link_set|
+        LinkPopulator.create_or_replace(link_set.id, content_item[:links])
         version = Version.find_or_initialize_by(target: link_set)
         version.increment
         version.save! if link_set.valid?
