@@ -5,6 +5,7 @@ module Commands
         validate!
 
         link_set = LinkSet.create_or_replace(link_params.except(:links)) do |link_set|
+          LinkPopulator.create_or_replace(link_set.id, link_params[:links])
           version = Version.find_or_initialize_by(target: link_set)
           version.increment
           version.save! if link_set.valid?
