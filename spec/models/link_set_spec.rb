@@ -10,6 +10,7 @@ RSpec.describe LinkSet do
   end
 
   def verify_new_attributes_set
+    binding.pry
     expect(described_class.last.links).to eq(foo: [valid_uuid])
   end
 
@@ -26,30 +27,21 @@ RSpec.describe LinkSet do
   #   ]
   # }
 
-  it "sets links to {} by default" do
-    expect(described_class.new.links).to eq({})
-
-    subject.links = nil
-    subject.save!
-    subject.reload
-
-    expect(subject.links).to eq({})
-  end
 
   it 'allows hashes from strings to lists' do
-    subject.links = {"related" => [SecureRandom.uuid]}
-    expect(subject).to be_valid
+    links = {"related" => [SecureRandom.uuid]}
+    expect(subject.links_valid?(links)).to be true
   end
 
   it 'allows an empty list of content IDs' do
-    subject.links = {"related" => []}
-    expect(subject).to be_valid
+    links = {"related" => []}
+    expect(subject.links_valid?(links)).to be true
   end
 
   describe "validating keys" do
     it 'rejects nil keys' do
-      subject.links = {nil => []}
-      expect(subject).not_to be_valid
+      links = {nil => []}
+      expect(subject.links_valid?(links)).to be_falsey
       expect(subject.errors[:links]).to eq(["Invalid link types: "])
     end
 
@@ -59,8 +51,8 @@ RSpec.describe LinkSet do
         'word2word',
         'word_word',
       ].each do |key|
-        subject.links = {key => []}
-        expect(subject).to be_valid, "expected item to be valid with links key '#{key}'"
+        links = {key => []}
+        expect(subject.links_valid?(links)).to be true
       end
     end
 
@@ -72,40 +64,42 @@ RSpec.describe LinkSet do
         'punctuation!',
         '',
       ].each do |key|
-        subject.links = {key => []}
-        expect(subject).not_to be_valid, "expected item not to be valid with links key '#{key}'"
-        expect(subject.errors[:links]).to eq(["Invalid link types: #{key}"])
+        links = {key => []}
+        expect(subject.links_valid?(links)).to be_falsey
       end
     end
 
     it "rejects reserved link type available_translations" do
-      subject.links = {'available_translations' => []}
-      expect(subject).not_to be_valid, "expected item not to be valid with links key 'available_translations'"
+      links = {'available_translations' => []}
+      expect(subject.links_valid?(links)).to be_falsey
       expect(subject.errors[:links]).to eq(["Invalid link types: available_translations"])
     end
   end
 
   describe "validating values" do
     it 'rejects non-list values' do
-      subject.links = {"related" => SecureRandom.uuid}
-      expect(subject).not_to be_valid
+      links = {"related" => SecureRandom.uuid}
+      expect(subject.links_valid?(links)).to be_falsey
       expect(subject.errors[:links]).to eq(["must map to lists of UUIDs"])
     end
 
     it 'rejects non-UUID content IDs' do
-      subject.links = {"related" => [SecureRandom.uuid, "/vat-rates"]}
-      expect(subject).not_to be_valid
+      links = {"related" => [SecureRandom.uuid, "/vat-rates"]}
+      expect(subject.links_valid?(links)).to be_falsey
       expect(subject.errors[:links]).to eq(["must map to lists of UUIDs"])
     end
 
     it 'rejects content IDs which are hashes' do
-      subject.links = {"related" => [{}]}
-      expect(subject).not_to be_valid
+      links = {"related" => [{}]}
+      expect(subject.links_valid?(links)).to be_falsey
       expect(subject.errors[:links]).to eq(["must map to lists of UUIDs"])
     end
   end
 
-  let!(:existing) { create(described_class) }
+  let!(:existing) {
+    FactoryGirl.build(:link_set)
+  }
+
   let!(:content_id) { existing.content_id }
 
   let!(:payload) do
