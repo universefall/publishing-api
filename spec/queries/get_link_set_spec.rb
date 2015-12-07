@@ -14,10 +14,12 @@ RSpec.describe Queries::GetLinkSet do
   end
 
   context "when the link set does not exist" do
-    it "returns an error object" do
-      expect {
-        subject.call("missing")
-      }.to raise_error(CommandError, /with content_id: missing/)
+    it "returns an empty linkset object" do
+      expect(subject.call("my-missing-content-id")).to eql({
+        content_id: "my-missing-content-id",
+        links: {},
+        version: 0,
+      })
     end
   end
 
