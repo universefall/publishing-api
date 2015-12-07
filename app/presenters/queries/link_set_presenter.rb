@@ -1,11 +1,6 @@
 module Presenters
   module Queries
     class LinkSetPresenter
-      def self.present(link_set)
-        version = Version.find_by(target: link_set)
-        new(link_set, version).present
-      end
-
       def initialize(link_set, version = nil)
         self.link_set = link_set
         self.version = version

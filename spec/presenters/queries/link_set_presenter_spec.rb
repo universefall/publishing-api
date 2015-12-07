@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe Presenters::Queries::LinkSetPresenter do
   describe ".present" do
     before do
-      FactoryGirl.create(:version, target: link_set, number: 101)
-      @result = Presenters::Queries::LinkSetPresenter.present(link_set)
+      version = FactoryGirl.create(:version, target: link_set, number: 101)
+      @result = Presenters::Queries::LinkSetPresenter.new(link_set, version).present
     end
 
     let(:link_set) { FactoryGirl.create(:link_set, content_id: "foo") }

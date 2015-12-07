@@ -2,7 +2,8 @@ module Queries
   module GetLinkSet
     def self.call(content_id)
       if (link_set = LinkSet.find_by(content_id: content_id))
-        Presenters::Queries::LinkSetPresenter.present(link_set)
+        version = Version.find_by(target: link_set)
+        Presenters::Queries::LinkSetPresenter.new(link_set, version).present
       else
         error_details = {
           error: {
