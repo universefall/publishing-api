@@ -24,7 +24,12 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
 
     context "when retrieving the next page" do
       it "returns items after last seen" do
-        item  = FactoryGirl.create(:content_item, base_path: '/random', content_id: ordered_content_ids.first)
+        item = FactoryGirl.create(
+          :content_item, 
+          base_path: '/random', 
+          content_id: ordered_content_ids.first
+        )
+
         item2 = FactoryGirl.create(:content_item, content_id: ordered_content_ids.last)
 
         expect(
