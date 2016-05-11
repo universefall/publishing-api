@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe "GET /v2/latestcontent", type: :request do
 
-  create_content_item(:item1)
-  create_content_item(:item2)
+  # create_content_item(:item1)
+  # create_content_item(:item2)
 
   context "input parameter validation" do
 

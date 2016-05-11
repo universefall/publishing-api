@@ -4,7 +4,7 @@ module V2
   # This controller provides endpoints exposing latest version of content.
   # Content is represented hierarchically, governed by content_id.
   # Note that this will tend to hide the internal concept of content_item from the user.
-  class LatestContentController < ApplicationController
+  class ThingyController < ApplicationController
 
     def index
 
@@ -23,7 +23,7 @@ module V2
 
 
       ## fixme we need to pass in the latest seen content_id to paginate properly
-      pagination = Pagination.new(query_params)
+      # pagination = Pagination.new(query_params)
 
       ## new query
       ## new presenter
@@ -40,6 +40,9 @@ module V2
       # )
       #
       # render json: Presenters::ResultsPresenter.new(results, pagination, request.original_url).present
+
+      render json: Presenters::ResultsPresenter.new([{}, {}], Pagination.new, 'foo')
+
     end
 
   end

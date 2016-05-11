@@ -27,6 +27,8 @@ Rails.application.routes.draw do
       get "/linked/:content_id", to: "link_sets#get_linked"
 
       get "/linkables", to: "content_items#linkables"
+
+      get "/latestcontent", to: "thingy#index"
     end
   end
 
