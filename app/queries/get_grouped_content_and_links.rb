@@ -10,10 +10,6 @@ module Queries
         page_size: page_size
       )
 
-      # TODO:
-      # - decide what to pass to the presenter
-      # - decide the structure
-      # - decide states
       group_results(content_results(content_ids), link_set_results(content_ids))
     end
 
