@@ -48,7 +48,7 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
 
     context "when there are documents" do
       before do
-        FactoryGirl.create(
+        @content_item = FactoryGirl.create(
           :content_item,
           content_id: ordered_content_ids.first,
           base_path: "/capital-gains-tax",
@@ -59,9 +59,20 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
       context "with no links" do
         it "returns the content item with empty links" do
           results = subject.call
+
           expect(results.size).to eq(1)
-          expect(results[0]).to include(:links)
-          expect(results[0][:links]).to eq([])
+
+          result = results.first
+
+          expect(result[:content_id]).to eq(@content_item.content_id)
+
+          expect(result[:content_items][0]["locale"]).to eq("en")
+          expect(result[:content_items][0]["base_path"]).to eq("/capital-gains-tax")
+          expect(result[:content_items][0]["state"]).to eq("published")
+          expect(result[:content_items][0]["version"]).to eq("1")
+
+          expect(result).to include(:links)
+          expect(result[:links]).to eq([])
         end
       end
 

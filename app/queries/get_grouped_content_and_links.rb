@@ -11,7 +11,6 @@ module Queries
       )
 
       # TODO:
-      # - include links
       # - decide what to pass to the presenter
       # - decide the structure
       # - decide states
