@@ -8,10 +8,16 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
     )
   end
 
+  def create_content_items(quantity, options = {})
+    1.upto(quantity) do |item|
+      FactoryGirl.create(:content_item, options)
+    end
+  end
 
   describe "#call" do
     context "when no results exist" do
       it "returns an empty array" do
+        create_content_items(5)
         expect(subject.call).to be_empty
       end
     end
@@ -25,18 +31,21 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
     context "when retrieving the next page" do
       it "returns items after last seen" do
         item = FactoryGirl.create(
-          :content_item, 
-          base_path: '/random', 
+          :content_item,
+          base_path: '/random',
           content_id: ordered_content_ids.first
         )
 
-        item2 = FactoryGirl.create(:content_item, content_id: ordered_content_ids.last)
+        item2 = FactoryGirl.create(
+          :content_item,
+          content_id: ordered_content_ids.last
+        )
+
+        expect(subject.call(last_seen_content_id: item.content_id).size).to eq(1)
 
         expect(
-          subject.call(last_seen_content_id: item.content_id)
-          # TODO work in progress
-          # we could map and extract content_id and compare with item2.content_id
-        ).to eql(item2.content_id) 
+          subject.call(last_seen_content_id: item.content_id)[0]["content_id"]
+        ).to eql(item2.content_id)
       end
     end
 
@@ -87,11 +96,8 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
 
     context "when there is a document with multiple editions and multiple links" do
       it "returns the document once, with the correct number of content items and the correct number of links" do
-
+        expect(true).to be_falsey
       end
     end
   end
 end
-
-# cenarios where draft and publish
-# 2 content items with the same content_id

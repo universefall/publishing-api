@@ -9,7 +9,7 @@ RSpec.describe "GET /v2/latestcontent", type: :request do
       create_content_items('0001', '0002', '0003')
 
       expected_result = [
-          hash_including(content_id: make_test_id('0001')),
+        hash_including(content_id: make_test_id('0001')),
       ]
 
       get "/v2/latestcontent", count: 1
@@ -57,8 +57,8 @@ RSpec.describe "GET /v2/latestcontent", type: :request do
       create_content_items('0001', '0002', '0003', '0005', '0007', '0008')
 
       expected_result = [
-          hash_including(content_id: make_test_id('0005')),
-          hash_including(content_id: make_test_id('0007')),
+        hash_including(content_id: make_test_id('0005')),
+        hash_including(content_id: make_test_id('0007')),
       ]
 
       get "/v2/latestcontent", last_seen_content_id: make_test_id('0003'), count: 2
@@ -72,7 +72,7 @@ RSpec.describe "GET /v2/latestcontent", type: :request do
       create_content_items('0001', '0002', '0003', '0005', '0007', '0008')
 
       expected_result = [
-          hash_including(content_id: make_test_id('0008')),
+        hash_including(content_id: make_test_id('0008')),
       ]
 
       get "/v2/latestcontent", last_seen_content_id: make_test_id('0007'), count: 2
