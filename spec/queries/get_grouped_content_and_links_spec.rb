@@ -9,7 +9,7 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
   end
 
   def create_content_items(quantity, options = {})
-    1.upto(quantity) do |item|
+    quantity.times do
       FactoryGirl.create(:content_item, options)
     end
   end
@@ -17,13 +17,13 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
   describe "#call" do
     context "when no results exist" do
       it "returns an empty array" do
-        create_content_items(5)
         expect(subject.call).to be_empty
       end
     end
 
     context "when no pagination is specified" do
       it "returns page with default page size" do
+        create_content_items(12)
         expect(subject.call.size).to eql(subject::PAGE_SIZE)
       end
     end
@@ -41,62 +41,90 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
           content_id: ordered_content_ids.last
         )
 
-        expect(subject.call(last_seen_content_id: item.content_id).size).to eq(1)
-
-        expect(
-          subject.call(last_seen_content_id: item.content_id)[0]["content_id"]
-        ).to eql(item2.content_id)
-      end
-    end
-
-    context "when there is a published document with no links" do
-      it "returns the document once, with one content item and empty links" do
-        published_doc_1 = FactoryGirl.create(
-          :content_item,
-          content_id: ordered_content_ids.first,
-          state: "published"
-        )
-        results = subject.call
+        results = subject.call(last_seen_content_id: item.content_id)
 
         expect(results.size).to eq(1)
-        expect(results.first).to eq nil
+        expect(results[0]["content_id"]).to eql(item2.content_id)
       end
     end
 
-    context "when there is a document with multiple editions and no links" do
-      it "returns the document once, with the correct number of content items and empty links" do
-        published_doc_1 = FactoryGirl.create(
+    context "when there are documents" do
+      before do
+        FactoryGirl.create(
           :content_item,
           content_id: ordered_content_ids.first,
-          base_path: "/vat-rates",
+          base_path: "/capital-gains-tax",
           state: "published"
         )
-
-        draft_doc_1 = FactoryGirl.create(
-          :content_item,
-          content_id: ordered_content_ids.first,
-          base_path: "/vat-rates",
-          state: "draft"
-        )
-
-        published_doc_2 = FactoryGirl.create(
-          :content_item,
-          content_id: ordered_content_ids.last,
-          base_path: "/register-to-vote",
-          state: "published"
-        )
-
-        results = subject.call
-
-        expect(results.size).to eq(2)
-        expect(results.first).to eq nil
-        expect(results.last).to eq nil
       end
-    end
 
-    context "when there is a document with multiple editions and multiple links" do
-      it "returns the document once, with the correct number of content items and the correct number of links" do
-        expect(true).to be_falsey
+      context "with no links" do
+        it "returns the content item with empty links" do
+          results = subject.call
+          expect(results.size).to eq(1)
+          expect(results[0]).to include("links")
+          expect(results[0]["links"]).to eq({})
+        end
+      end
+
+      context "with links" do
+        it "returns the content item with links" do
+          results = subject.call
+          expect(results.size).to eq(1)
+          expect(results[0]).to include("links")
+          expect(results[0]["links"]).to eq({})
+        end
+      end
+
+      context "with multiple editions (draft & published)" do
+        before do
+          FactoryGirl.create(
+            :content_item,
+            content_id: ordered_content_ids.first,
+            base_path: "/vat-rates",
+            state: "published"
+          )
+
+          FactoryGirl.create(
+            :content_item,
+            content_id: ordered_content_ids.first,
+            base_path: "/vat-rates",
+            state: "draft"
+          )
+
+          FactoryGirl.create(
+            :content_item,
+            content_id: ordered_content_ids.last,
+            base_path: "/register-to-vote",
+            state: "published"
+          )
+        end
+
+        context "with no links" do
+          it "returns the content item with empty links" do
+            results = subject.call
+
+            expect(results.size).to eq(2)
+            expect(results[0]).to include("links")
+            expect(results[0]["links"]).to eq({})
+
+            expect(results[1]).to include("links")
+            expect(results[1]["links"]).to eq({})
+          end
+        end
+
+        context "with links" do
+          it "returns the content item with links" do
+            results = subject.call
+
+            expect(results.size).to eq(2)
+            expect(results[0]).to include("links")
+            expect(results[0]["links"]).to eq({"hello" => "world"})
+
+            expect(results[1]).to include("links")
+            expect(results[1]["links"]).to eq({"hello" => "world"})
+          end
+        end
       end
     end
   end

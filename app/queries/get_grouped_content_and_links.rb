@@ -14,6 +14,8 @@ module Queries
       # - group content items by content_id
       # - include links
       # - decide what to pass to the presenter
+      # - decide the structure
+      # - decide states
       content_results(content_ids).to_a
     end
 
