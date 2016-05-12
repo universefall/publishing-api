@@ -15,7 +15,7 @@ module Queries
       # - decide what to pass to the presenter
       # - decide the structure
       # - decide states
-      group_results(content_results(content_ids), [])
+      group_results(content_results(content_ids), link_set_results(content_ids))
     end
 
   private
@@ -31,7 +31,7 @@ module Queries
 
     def self.group_results(content_results, link_set_results)
       grouped_content_items = group_content_results_by_content_id(content_results)
-      grouped_links   = group_link_set_by_content_id(link_set_results)
+      grouped_links = group_link_set_by_content_id(link_set_results)
 
       grouped_content_items.map do |content_id, content_items|
         {
@@ -73,6 +73,25 @@ module Queries
         JOIN user_facing_versions ufv on ufv.content_item_id = ci.id
 
         WHERE ci.content_id IN (#{sql_value_placeholders(content_ids)})
+      SQL
+
+      ActiveRecord::Base.connection.raw_connection.exec(query, content_ids)
+    end
+
+    def self.link_set_results(content_ids)
+      return [] if content_ids.empty?
+
+      query = <<-SQL
+        SELECT
+          link_sets.content_id,
+          links.link_type,
+          links.target_content_id
+        FROM
+          link_sets
+        JOIN
+          links on link_sets.id = links.link_set_id
+
+        WHERE link_sets.content_id IN (#{sql_value_placeholders(content_ids)})
       SQL
 
       ActiveRecord::Base.connection.raw_connection.exec(query, content_ids)

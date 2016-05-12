@@ -8,10 +8,8 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
     )
   end
 
-  def create_content_items(quantity, options = {})
-    quantity.times do
-      FactoryGirl.create(:content_item, options)
-    end
+  def new_content_item
+    SecureRandom.uuid
   end
 
   describe "#call" do
@@ -23,7 +21,7 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
 
     context "when no pagination is specified" do
       it "returns page with default page size" do
-        create_content_items(12)
+        FactoryGirl.create_list(:content_item, 12)
         expect(subject.call.size).to eql(subject::PAGE_SIZE)
       end
     end
@@ -68,11 +66,33 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
       end
 
       context "with links" do
+        let(:target_content_id) { SecureRandom.uuid }
+
+        before do
+          link_set = FactoryGirl.create(
+            :link_set,
+            content_id: ordered_content_ids.first,
+            links: {
+              "topics" => [
+                target_content_id
+              ]
+            }
+          )
+        end
+
         it "returns the content item with links" do
           results = subject.call
           expect(results.size).to eq(1)
           expect(results[0]).to include(:links)
-          expect(results[0][:links]).to eq([{topics: 'TODO'}])
+          expect(results[0][:links]).to eq(
+            [
+              {
+                "content_id" => ordered_content_ids.first,
+                "link_type"  => "topics",
+                "target_content_id" => target_content_id,
+              }
+            ]
+          )
         end
       end
 
@@ -114,6 +134,31 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
         end
 
         context "with links" do
+          let(:first_target_content_id) { SecureRandom.uuid }
+          let(:second_target_content_id) { SecureRandom.uuid }
+
+          before do
+            link_set1 = FactoryGirl.create(
+              :link_set,
+              links: {
+                "topics" => [
+                  first_target_content_id
+                ]
+              },
+              content_id: ordered_content_ids.first
+            )
+
+            link_set2 = FactoryGirl.create(
+              :link_set,
+              links: {
+                "topics" => [
+                  second_target_content_id
+                ]
+              },
+              content_id: ordered_content_ids.last
+            )
+          end
+
           it "returns the content item with links" do
             results = subject.call
 
@@ -121,12 +166,20 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
             expect(results[0]).to include(:links)
             expect(results[0][:links]).to eq([
               {
-                topics: 'TODO',
+                "content_id" => ordered_content_ids.first,
+                "link_type"  => "topics",
+                "target_content_id" => first_target_content_id,
               }
             ])
 
             expect(results[1]).to include(:links)
-            expect(results[1][:links]).to eq({"hello" => "world"})
+            expect(results[1][:links]).to eq([
+              {
+                "content_id" => ordered_content_ids.last,
+                "link_type"  => "topics",
+                "target_content_id" => second_target_content_id,
+              }
+            ])
           end
         end
       end
