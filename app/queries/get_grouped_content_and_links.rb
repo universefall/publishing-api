@@ -11,12 +11,11 @@ module Queries
       )
 
       # TODO:
-      # - group content items by content_id
       # - include links
       # - decide what to pass to the presenter
       # - decide the structure
       # - decide states
-      content_results(content_ids).to_a
+      group_results(content_results(content_ids), [])
     end
 
   private
@@ -28,6 +27,30 @@ module Queries
         .having("content_id > ?", [last_seen_content_id])
         .limit(page_size)
         .map(&:content_id)
+    end
+
+    def self.group_results(content_results, link_set_results)
+      grouped_content_items = group_content_results_by_content_id(content_results)
+      grouped_links   = group_link_set_by_content_id(link_set_results)
+
+      grouped_content_items.map do |content_id, content_items|
+        {
+          content_id: content_id,
+          content_items: content_items,
+          links: grouped_links[content_id] || []
+        }
+      end
+    end
+
+    def self.group_content_results_by_content_id(content_results)
+      content_results.group_by { |item| item["content_id"] }
+    end
+
+    def self.group_link_set_by_content_id(link_set_results)
+      link_set_results.group_by { |link_set| link_set["content_id"] }
+    end
+
+    def self.link_set_results()
     end
 
     def self.content_results(content_ids)

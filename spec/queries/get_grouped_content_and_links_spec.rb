@@ -44,7 +44,7 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
         results = subject.call(last_seen_content_id: item.content_id)
 
         expect(results.size).to eq(1)
-        expect(results[0]["content_id"]).to eql(item2.content_id)
+        expect(results[0][:content_id]).to eql(item2.content_id)
       end
     end
 
@@ -62,8 +62,8 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
         it "returns the content item with empty links" do
           results = subject.call
           expect(results.size).to eq(1)
-          expect(results[0]).to include("links")
-          expect(results[0]["links"]).to eq({})
+          expect(results[0]).to include(:links)
+          expect(results[0][:links]).to eq([])
         end
       end
 
@@ -71,8 +71,8 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
         it "returns the content item with links" do
           results = subject.call
           expect(results.size).to eq(1)
-          expect(results[0]).to include("links")
-          expect(results[0]["links"]).to eq({})
+          expect(results[0]).to include(:links)
+          expect(results[0][:links]).to eq([{topics: 'TODO'}])
         end
       end
 
@@ -105,11 +105,11 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
             results = subject.call
 
             expect(results.size).to eq(2)
-            expect(results[0]).to include("links")
-            expect(results[0]["links"]).to eq({})
+            expect(results[0]).to include(:links)
+            expect(results[0][:links]).to eq([])
 
-            expect(results[1]).to include("links")
-            expect(results[1]["links"]).to eq({})
+            expect(results[1]).to include(:links)
+            expect(results[1][:links]).to eq([])
           end
         end
 
@@ -118,11 +118,15 @@ RSpec.describe Queries::GetGroupedContentAndLinks do
             results = subject.call
 
             expect(results.size).to eq(2)
-            expect(results[0]).to include("links")
-            expect(results[0]["links"]).to eq({"hello" => "world"})
+            expect(results[0]).to include(:links)
+            expect(results[0][:links]).to eq([
+              {
+                topics: 'TODO',
+              }
+            ])
 
-            expect(results[1]).to include("links")
-            expect(results[1]["links"]).to eq({"hello" => "world"})
+            expect(results[1]).to include(:links)
+            expect(results[1][:links]).to eq({"hello" => "world"})
           end
         end
       end
