@@ -58,7 +58,9 @@ module Queries
           t.locale as locale,
           loc.base_path as base_path,
           s.name as state,
-          ufv.number as version
+          ufv.number as user_facing_version,
+          ci.publishing_app,
+          ci.format
 
         FROM
           content_items ci
@@ -68,6 +70,7 @@ module Queries
         JOIN user_facing_versions ufv on ufv.content_item_id = ci.id
 
         WHERE ci.content_id IN (#{sql_value_placeholders(content_ids)})
+        ORDER BY ci.updated_at DESC
       SQL
 
       ActiveRecord::Base.connection.raw_connection.exec(query, content_ids)
