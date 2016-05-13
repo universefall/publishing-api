@@ -4,7 +4,10 @@ module Queries
     DEFAULT_CONTENT_ID = '00000000-0000-0000-0000-000000000000'.freeze
 
     # return array useful objects
-    def self.call(last_seen_content_id: DEFAULT_CONTENT_ID, page_size: PAGE_SIZE)
+    def self.call(last_seen_content_id: nil, page_size: nil)
+      last_seen_content_id = last_seen_content_id || DEFAULT_CONTENT_ID
+      page_size = page_size || PAGE_SIZE
+
       content_ids = query_content_ids_for_page(
         last_seen_content_id: last_seen_content_id,
         page_size: page_size
@@ -30,9 +33,9 @@ module Queries
 
       grouped_content_items.map do |content_id, content_items|
         {
-          content_id: content_id,
-          content_items: content_items,
-          links: grouped_links[content_id] || []
+          "content_id" => content_id,
+          "content_items" => content_items,
+          "links" => grouped_links[content_id] || []
         }
       end
     end

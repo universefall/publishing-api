@@ -29,20 +29,12 @@ module V2
       ## new presenter
       ## etc
 
+      results = Queries::GetGroupedContentAndLinks.call(
+        last_seen_content_id: params[:last_seen_content_id],
+        page_size: params[:page_size],
+      )
 
-
-      # results = Queries::GetContentCollection.new(
-      #     document_type: doc_type,
-      #     fields: query_params[:fields],
-      #     filters: filters,
-      #     pagination: pagination,
-      #     search_query: query_params.fetch("q", "")
-      # )
-      #
-      # render json: Presenters::ResultsPresenter.new(results, pagination, request.original_url).present
-
-      render json: Presenters::ResultsPresenter.new([{}, {}], Pagination.new, 'foo')
-
+      render json: Presenters::Queries::GroupedContentWithLinks.new(results).present
     end
 
   end

@@ -28,9 +28,9 @@ module Presenters
 
       def present_result(query_result)
         {
-          content_id: query_result[:content_id],
-          content_items: present_content_items(query_result[:content_items]),
-          links: present_links(query_result[:links])
+          content_id: query_result["content_id"],
+          content_items: present_content_items(query_result["content_items"]),
+          links: present_links(query_result["links"])
         }
       end
 
