@@ -28,7 +28,7 @@ Rails.application.routes.draw do
 
       get "/linkables", to: "content_items#linkables"
 
-      get "/latestcontent", to: "thingy#index"
+      get "/latest_contents", to: "thingy#index"
     end
   end
 
