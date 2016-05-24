@@ -87,7 +87,7 @@ module Presenters
           when :publication_state
             "#{publication_state_sql} AS publication_state"
           when :user_facing_version
-            "user_facing_versions.number AS user_facing_version"
+            "content_items_dn.number AS user_facing_version"
           when :lock_version
             "lock_versions.number AS lock_version"
           when :description
@@ -113,12 +113,12 @@ module Presenters
 
       def publication_state_sql
         <<-SQL
-          CASE WHEN (user_facing_versions.number > 1 AND states.name = 'draft') THEN
+          CASE WHEN (content_items_dn.number > 1 AND name = 'draft') THEN
             'redrafted'
-          WHEN (states.name = 'published') THEN
+          WHEN (name = 'published') THEN
             'live'
           ELSE
-            states.name
+            name
           END
         SQL
       end

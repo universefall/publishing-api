@@ -18,7 +18,7 @@ module Queries
               s1.number < s2.number
             WHERE s2.content_id IS NULL
           ) AS latest_versions
-          ON latest_versions.id = content_items.id
+          ON latest_versions.id = content_items_dn.id
         SQL
       end
     end
