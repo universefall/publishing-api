@@ -1,18 +1,8 @@
-class State < ActiveRecord::Base
-  belongs_to :content_item
+class State
+  include SupportingObject
+  extend Forwardable
 
-  validates_with ContentItemUniquenessValidator
-
-  def self.filter(content_item_scope, name:)
-    join_content_items(content_item_scope)
-      .where("states.name" => name)
-  end
-
-  def self.join_content_items(content_item_scope)
-    content_item_scope.joins(
-      "INNER JOIN states ON states.content_item_id = content_items.id"
-    )
-  end
+  def_delegators :content_item, :name, :name=
 
   def self.supersede(content_item)
     change_state(content_item, name: "superseded")
