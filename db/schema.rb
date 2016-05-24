@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160517134907) do
+ActiveRecord::Schema.define(version: 20160524214756) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,44 @@ ActiveRecord::Schema.define(version: 20160517134907) do
   add_index "content_items", ["publishing_app"], name: "index_content_items_on_publishing_app", using: :btree
   add_index "content_items", ["rendering_app"], name: "index_content_items_on_rendering_app", using: :btree
   add_index "content_items", ["updated_at"], name: "index_content_items_on_updated_at", using: :btree
+
+  create_table "content_items_dn", force: :cascade do |t|
+    t.string   "content_id"
+    t.string   "title"
+    t.string   "format"
+    t.datetime "public_updated_at"
+    t.json     "details"
+    t.json     "routes"
+    t.json     "redirects"
+    t.string   "publishing_app"
+    t.string   "rendering_app"
+    t.json     "need_ids"
+    t.string   "update_type"
+    t.string   "phase"
+    t.string   "analytics_identifier"
+    t.json     "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "document_type"
+    t.string   "schema_name"
+    t.datetime "first_published_at"
+    t.string   "base_path"
+    t.string   "name"
+    t.string   "locale"
+    t.integer  "number"
+  end
+
+  add_index "content_items_dn", ["base_path", "name", "locale", "number"], name: "pillars_of_uniqueness", unique: true, using: :btree
+  add_index "content_items_dn", ["base_path"], name: "index_content_items_dn_on_base_path", using: :btree
+  add_index "content_items_dn", ["content_id"], name: "index_content_items_dn_on_content_id", using: :btree
+  add_index "content_items_dn", ["document_type"], name: "index_content_items_dn_on_document_type", using: :btree
+  add_index "content_items_dn", ["format"], name: "index_content_items_dn_on_format", using: :btree
+  add_index "content_items_dn", ["locale"], name: "index_content_items_dn_on_locale", using: :btree
+  add_index "content_items_dn", ["name"], name: "index_content_items_dn_on_name", using: :btree
+  add_index "content_items_dn", ["number"], name: "index_content_items_dn_on_number", using: :btree
+  add_index "content_items_dn", ["public_updated_at"], name: "index_content_items_dn_on_public_updated_at", using: :btree
+  add_index "content_items_dn", ["publishing_app"], name: "index_content_items_dn_on_publishing_app", using: :btree
+  add_index "content_items_dn", ["rendering_app"], name: "index_content_items_dn_on_rendering_app", using: :btree
 
   create_table "events", force: :cascade do |t|
     t.string   "action",                  null: false

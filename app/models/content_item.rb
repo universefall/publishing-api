@@ -3,6 +3,8 @@ class ContentItem < ActiveRecord::Base
   include SymbolizeJSON
   include DescriptionOverrides
 
+  self.table_name = "content_items_dn"
+
   DEFAULT_LOCALE = "en".freeze
 
   TOP_LEVEL_FIELDS = [
