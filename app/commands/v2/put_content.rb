@@ -115,14 +115,9 @@ module Commands
       end
 
       def create_supporting_objects(content_item)
-        State.create!(content_item: content_item, name: "draft")
-        Translation.create!(content_item: content_item, locale: locale)
-        UserFacingVersion.create!(content_item: content_item, number: user_facing_version_number_for_new_draft)
         LockVersion.create!(target: content_item, number: lock_version_number_for_new_draft)
 
         if base_path_required?
-          Location.create!(content_item: content_item, base_path: base_path)
-
           if locale == ContentItem::DEFAULT_LOCALE && !Linkable.exists?(base_path: base_path)
             Linkable.create!(
               content_item: content_item,

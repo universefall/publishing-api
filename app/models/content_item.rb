@@ -25,6 +25,10 @@ class ContentItem < ActiveRecord::Base
     :schema_name,
     :title,
     :update_type,
+    :name,
+    :base_path,
+    :locale,
+    :number
   ].freeze
 
   NON_RENDERABLE_FORMATS = %w(redirect gone).freeze
