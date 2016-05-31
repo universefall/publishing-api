@@ -65,7 +65,7 @@ module Presenters
     end
 
     def web_content_item
-      @web_content_item ||= WebContentItem.new(content_item)
+      @web_content_item ||= WebContentItem.get_by_id(content_item.id)
     end
 
     def locale_fallback_order

@@ -37,7 +37,7 @@ module Presenters
 
       def expand_translation(item)
         expansion_rules = ::Queries::DependentExpansionRules
-        web_item = WebContentItem.new(item, locale: item.locale)
+        web_item = WebContentItem.get_by_id(item.id)
         ExpandLink.new(web_item, :available_translations, expansion_rules).expand_link
       end
 
