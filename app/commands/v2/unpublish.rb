@@ -57,6 +57,7 @@ module Commands
         State.unpublish(content_item,
           type: "withdrawal",
           explanation: payload.fetch(:explanation),
+          time: payload[:time],
         )
 
         after_transaction_commit do

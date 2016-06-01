@@ -22,7 +22,7 @@ class State < ActiveRecord::Base
     change_state(content_item, name: "published")
   end
 
-  def self.unpublish(content_item, type:, explanation: nil, alternative_path: nil)
+  def self.unpublish(content_item, type:, explanation: nil, alternative_path: nil, time: Time.zone.now)
     change_state(content_item, name: "unpublished")
 
     unpublishing = Unpublishing.find_by(content_item: content_item)
@@ -32,6 +32,7 @@ class State < ActiveRecord::Base
         type: type,
         explanation: explanation,
         alternative_path: alternative_path,
+        time: time,
       )
     else
       Unpublishing.create!(
@@ -39,6 +40,7 @@ class State < ActiveRecord::Base
         type: type,
         explanation: explanation,
         alternative_path: alternative_path,
+        time: time,
       )
     end
   end

@@ -47,6 +47,7 @@ RSpec.describe Commands::V2::Unpublish do
         expect(unpublishing.type).to eq("gone")
         expect(unpublishing.explanation).to eq("Removed for testing porpoises")
         expect(unpublishing.alternative_path).to eq("/new-path")
+        expect(unpublishing.time).to be_within(2.seconds).of(Time.zone.now)
       end
 
       it "deletes the linkable" do
@@ -74,6 +75,16 @@ RSpec.describe Commands::V2::Unpublish do
         expect(PublishingAPI.service(:queue_publisher)).not_to receive(:send_message)
 
         described_class.call(payload)
+      end
+
+      it "can set the time for a withdrawal" do
+        payload[:type] = "withdrawal"
+        payload[:time] = "2016-06-01 12:23:02"
+
+        described_class.call(payload)
+
+        unpublishing = Unpublishing.find_by(content_item: live_content_item)
+        expect(unpublishing.time).to eq(DateTime.parse("2016-06-01 12:23:02"))
       end
     end
 

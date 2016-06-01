@@ -87,6 +87,7 @@ RSpec.describe State do
           type: "gone",
           explanation: "A test explanation",
           alternative_path: "/some-path",
+          time: Date.parse("2001-01-17 10:14:55"),
         )
       }.to change(Unpublishing, :count).by(1)
 
@@ -96,6 +97,7 @@ RSpec.describe State do
       expect(unpublishing.type).to eq("gone")
       expect(unpublishing.explanation).to eq("A test explanation")
       expect(unpublishing.alternative_path).to eq("/some-path")
+      expect(unpublishing.time).to eq(Date.parse("2001-01-17 10:14:55"))
     end
   end
 
