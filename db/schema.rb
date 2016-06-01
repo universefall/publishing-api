@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160524210649) do
+ActiveRecord::Schema.define(version: 20160601105606) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -154,6 +154,7 @@ ActiveRecord::Schema.define(version: 20160524210649) do
     t.string   "alternative_path"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "time"
   end
 
   add_index "unpublishings", ["content_item_id", "type"], name: "index_unpublishings_on_content_item_id_and_type", using: :btree
