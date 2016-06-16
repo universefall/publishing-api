@@ -27,24 +27,20 @@ class LockVersion < ActiveRecord::Base
     self.where(target: id_list, target_type: type.to_s).index_by(&:target_id)
   end
 
+  def self.fetch_for(target)
+    where(target: target).pluck(:number).first
+  end
+
 private
 
   def content_item_target?
     target.is_a?(ContentItem)
   end
 
-  def draft_and_live_versions
-    draft = ContentItemFilter.similar_to(target, state: "draft", user_version: nil).first
-    live = ContentItemFilter.similar_to(target, state: "published", user_version: nil).first
-
-    if draft == target
-      draft_version = self
-      live_version = self.class.find_by(target: live)
-    elsif live == target
-      draft_version = self.class.find_by(target: draft)
-      live_version = self
+  def draft_and_live_version_numbers
+    %w{draft published}.map do |state|
+      targets = ContentItemFilter.similar_to(target, state: state, user_version: nil)
+      self.class.where(target: targets).limit(1).pluck(:number)[0]
     end
-
-    [draft_version, live_version]
   end
 end

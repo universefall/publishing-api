@@ -6,10 +6,10 @@ class ContentItemFilter
   def self.similar_to(content_item, params = {})
     params = params.dup
 
-    params[:locale] = translation(content_item).locale unless params.has_key?(:locale)
-    params[:base_path] = location(content_item).try(:base_path) unless params.has_key?(:base_path)
-    params[:state] = state(content_item).name unless params.has_key?(:state)
-    params[:user_version] = user_facing_version(content_item).number unless params.has_key?(:user_version)
+    params[:locale] = translation(content_item) unless params.has_key?(:locale)
+    params[:base_path] = location(content_item) unless params.has_key?(:base_path)
+    params[:state] = state(content_item) unless params.has_key?(:state)
+    params[:user_version] = user_facing_version(content_item) unless params.has_key?(:user_version)
 
     scope = ContentItem.where(content_id: content_item.content_id)
 
@@ -30,19 +30,19 @@ class ContentItemFilter
   end
 
   def self.translation(content_item)
-    Translation.find_by!(content_item: content_item)
+    Translation.fetch_for(content_item)
   end
 
   def self.location(content_item)
-    Location.find_by(content_item: content_item)
+    Location.fetch_for(content_item)
   end
 
   def self.state(content_item)
-    State.find_by!(content_item: content_item)
+    State.fetch_for(content_item)
   end
 
   def self.user_facing_version(content_item)
-    UserFacingVersion.find_by!(content_item: content_item)
+    UserFacingVersion.fetch_for(content_item)
   end
 
 protected

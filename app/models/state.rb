@@ -14,6 +14,10 @@ class State < ActiveRecord::Base
     )
   end
 
+  def self.fetch_for(content_item)
+    where(content_item: content_item).pluck(:name).first
+  end
+
   def self.supersede(content_item)
     change_state(content_item, name: "superseded")
   end

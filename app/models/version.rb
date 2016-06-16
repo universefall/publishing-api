@@ -21,12 +21,12 @@ private
   end
 
   def draft_cannot_be_behind_live
-    draft_version, live_version = draft_and_live_versions
+    draft_version, live_version = draft_and_live_version_numbers
 
     return unless draft_version && live_version
 
-    if draft_version.number < live_version.number
-      mismatch = "(#{draft_version.number} < #{live_version.number})"
+    if draft_version < live_version
+      mismatch = "(#{draft_version} < #{live_version})"
       message = "draft #{self.class.name} cannot be behind the live #{self.class.name} #{mismatch}"
       errors.add(:number, message)
     end

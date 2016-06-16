@@ -22,24 +22,20 @@ class UserFacingVersion < ActiveRecord::Base
     )
   end
 
+  def self.fetch_for(content_item)
+    where(content_item: content_item).pluck(:number).first
+  end
+
 private
 
   def content_item_target?
     true
   end
 
-  def draft_and_live_versions
-    draft = ContentItemFilter.similar_to(content_item, state: "draft", user_version: nil).first
-    live = ContentItemFilter.similar_to(content_item, state: "published", user_version: nil).first
-
-    if draft == content_item
-      draft_version = self
-      live_version = self.class.find_by(content_item: live)
-    elsif live == content_item
-      draft_version = self.class.find_by(content_item: draft)
-      live_version = self
+  def draft_and_live_version_numbers
+    %w{draft published}.map do |state|
+      targets = ContentItemFilter.similar_to(content_item, state: state, user_version: nil)
+      self.class.where(content_item: targets).limit(1).pluck(:number)[0]
     end
-
-    [draft_version, live_version]
   end
 end

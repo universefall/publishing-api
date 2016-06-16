@@ -18,4 +18,8 @@ class Translation < ActiveRecord::Base
       "INNER JOIN translations ON translations.content_item_id = content_items.id"
     )
   end
+
+  def self.fetch_for(content_item)
+    where(content_item: content_item).pluck(:locale).first
+  end
 end

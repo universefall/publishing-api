@@ -17,6 +17,12 @@ class Location < ActiveRecord::Base
     )
   end
 
+  def self.fetch_for(content_item)
+    PublishingAPI.service(:statsd).time("Location.fetch_for") do
+      where(content_item: content_item).pluck(:base_path).first
+    end
+  end
+
 private
 
   def base_path_present?
