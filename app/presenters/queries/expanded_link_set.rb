@@ -100,7 +100,7 @@ module Presenters
 
       def valid_web_content_items(target_content_ids)
         target_content_ids = without_passsthrough_hashes(target_content_ids)
-        web_content_items(target_content_ids).select(&:content_item)
+        web_content_items(target_content_ids)
       end
 
       def without_passsthrough_hashes(target_content_ids)
@@ -108,32 +108,27 @@ module Presenters
       end
 
       def web_content_items(target_content_ids)
-        target_content_ids.map do |target_content_id|
-          web_content_item(target_content_id)
+        content_item_ids = target_content_ids.map do |target_content_id|
+          content_item_id(target_content_id)
         end
+        ::Queries::GetWebContentItems.call(content_item_ids)
       end
 
-      def web_content_item(target_content_id)
-        @web_content_item ||= {}
-        @web_content_item[target_content_id] ||=
-          ::WebContentItem.new(content_item(target_content_id))
-      end
-
-      def content_item(target_content_id)
+      def content_item_id(target_content_id)
         content_item_filter = ContentItemFilter.new(
           scope: ContentItem.where(content_id: target_content_id)
         )
 
-        @content_item ||= {}
+        @content_item_id ||= {}
 
         locale_fallback_order.each do |locale|
           state_fallback_order.each do |state|
-            @content_item[target_content_id] ||=
-              content_item_filter.filter(state: state, locale: locale).first
+            @content_item_id[target_content_id] ||=
+              content_item_filter.filter(state: state, locale: locale).pluck(:id).first
           end
         end
 
-        @content_item[target_content_id]
+        @content_item_id[target_content_id]
       end
 
       def translations

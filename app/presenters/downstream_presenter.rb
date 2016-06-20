@@ -1,3 +1,5 @@
+require "queries/get_web_content_items"
+
 module Presenters
   class DownstreamPresenter
     def self.present(content_item, state_fallback_order:)
@@ -67,7 +69,7 @@ module Presenters
     end
 
     def web_content_item
-      @web_content_item ||= WebContentItem.new(content_item)
+      @web_content_item ||= ::Queries::GetWebContentItems.call(content_item.id).first
     end
 
     def locale_fallback_order
