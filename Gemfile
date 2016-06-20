@@ -49,4 +49,6 @@ group :development, :test do
   gem "govuk-lint"
   gem "faker"
   gem "stackprof", require: false
+  gem "spring"
+  gem "spring-commands-rspec"
 end
