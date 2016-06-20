@@ -295,6 +295,10 @@ GEM
     scss_lint (0.44.0)
       rake (~> 10.0)
       sass (~> 3.4.15)
+    sequel (4.35.0)
+    sequel_pg (1.6.17)
+      pg (>= 0.8.0)
+      sequel (>= 4.0.0)
     sidekiq (3.5.1)
       celluloid (~> 0.17.2)
       connection_pool (~> 2.2, >= 2.2.0)
@@ -383,6 +387,7 @@ DEPENDENCIES
   rails (= 4.2.6)
   rspec
   rspec-rails (~> 3.3)
+  sequel_pg
   sidekiq (= 3.5.1)
   sidekiq-logging-json (= 0.0.14)
   sidekiq-statsd (= 0.1.5)

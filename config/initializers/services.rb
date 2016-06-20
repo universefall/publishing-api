@@ -47,3 +47,10 @@ end
 statsd_client = Statsd.new("localhost")
 statsd_client.namespace = "govuk.app.publishing-api"
 PublishingAPI.register_service(name: :statsd, client: statsd_client)
+
+sequel_url = ENV["DATABASE_URL"] || "postgres://vagrant:vagrant@localhost/publishing_api_#{Rails.env}"
+
+PublishingAPI.register_service(
+  name: :database,
+  client: Sequel.connect(sequel_url)
+)
