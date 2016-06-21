@@ -15,4 +15,8 @@ WebContentItem = Struct.new(*fields) do
     return unless base_path
     Plek.current.website_root + base_path
   end
+
+  def description
+    JSON.parse(self[:description])["value"]
+  end
 end
