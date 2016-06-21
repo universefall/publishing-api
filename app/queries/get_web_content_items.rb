@@ -15,7 +15,7 @@ module Queries
         .select_more(
           :states__name___state, :user_facing_versions__number___user_facing_version
         )
-        .join(:locations, content_item_id: :content_items__id)
+        .left_join(:locations, content_item_id: :content_items__id)
         .join(:states, content_item_id: :content_items__id)
         .join(:translations, content_item_id: :content_items__id)
         .join(:user_facing_versions, content_item_id: :content_items__id)
