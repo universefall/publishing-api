@@ -9,6 +9,7 @@ gem "plek", "~> 1.10"
 gem "airbrake", "~> 4.2.1"
 gem "pg"
 gem "sequel_pg", require: 'sequel'
+gem "sequel-rails"
 
 if ENV["API_DEV"]
   gem "gds-api-adapters", path: "../gds-api-adapters"

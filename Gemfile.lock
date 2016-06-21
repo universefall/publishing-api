@@ -296,6 +296,11 @@ GEM
       rake (~> 10.0)
       sass (~> 3.4.15)
     sequel (4.35.0)
+    sequel-rails (0.9.12)
+      actionpack (>= 3.2.0)
+      activemodel
+      railties (>= 3.2.0)
+      sequel (>= 3.28, < 5.0)
     sequel_pg (1.6.17)
       pg (>= 0.8.0)
       sequel (>= 4.0.0)
@@ -390,6 +395,7 @@ DEPENDENCIES
   rails (= 4.2.6)
   rspec
   rspec-rails (~> 3.3)
+  sequel-rails
   sequel_pg
   sidekiq (= 3.5.1)
   sidekiq-logging-json (= 0.0.14)
