@@ -108,27 +108,13 @@ module Presenters
       end
 
       def web_content_items(target_content_ids)
-        content_item_ids = target_content_ids.map do |target_content_id|
-          content_item_id(target_content_id)
-        end
-        ::Queries::GetWebContentItems.call(content_item_ids)
-      end
-
-      def content_item_id(target_content_id)
-        content_item_filter = ContentItemFilter.new(
-          scope: ContentItem.where(content_id: target_content_id)
+        ::Queries::GetWebContentItems.(
+          ::Queries::GetContentItemIdsWithFallbacks.(
+            target_content_ids,
+            locale_fallback_order: locale_fallback_order,
+            state_fallback_order: state_fallback_order
+          ).map(:id)
         )
-
-        @content_item_id ||= {}
-
-        locale_fallback_order.each do |locale|
-          state_fallback_order.each do |state|
-            @content_item_id[target_content_id] ||=
-              content_item_filter.filter(state: state, locale: locale).pluck(:id).first
-          end
-        end
-
-        @content_item_id[target_content_id]
       end
 
       def translations
