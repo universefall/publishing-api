@@ -52,5 +52,5 @@ sequel_url = ENV["DATABASE_URL"] || "postgres://vagrant:vagrant@localhost/publis
 
 PublishingAPI.register_service(
   name: :database,
-  client: Sequel.connect(sequel_url)
+  client: Sequel.connect(sequel_url, loggers: [Rails.logger])
 )
