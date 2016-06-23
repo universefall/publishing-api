@@ -11,13 +11,14 @@ RSpec.describe Commands::V2::PutContent do
     let(:content_id) { SecureRandom.uuid }
     let(:base_path) { "/vat-rates" }
     let(:locale) { "en" }
+    let(:title) { "Some Title" }
 
     let(:payload) {
       {
         content_id: content_id,
         base_path: base_path,
         update_type: "major",
-        title: "Some Title",
+        title: title,
         publishing_app: "publisher",
         rendering_app: "frontend",
         document_type: "guide",
@@ -877,7 +878,7 @@ RSpec.describe Commands::V2::PutContent do
       end
 
       context "when other update type" do
-        it "dosen't change last_edited_at" do
+        it "doesn't change last_edited_at" do
           old_last_edited_at = content_item.last_edited_at
 
           described_class.call(payload.merge(
@@ -888,6 +889,15 @@ RSpec.describe Commands::V2::PutContent do
 
           expect(content_item.last_edited_at).to eq(old_last_edited_at)
         end
+      end
+    end
+
+    context "when the payload is invalid" do
+      let(:title) { nil }
+      let(:content_id) { nil }
+
+      it "raises a CommandError" do
+        expect{described_class.call(payload)}.to raise_error(CommandError, /can't be blank/)
       end
     end
   end
