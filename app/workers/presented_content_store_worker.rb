@@ -11,6 +11,26 @@ class PresentedContentStoreWorker
   def perform(args = {})
     assign_attributes(args.deep_symbolize_keys)
 
+    broadcast_to_message_queue if params[:broadcast]
+
+    update_content_store
+  end
+
+private
+
+  def broadcast_to_message_queue
+    # @todo Maybe throw exception - pain point of the shoehorning of message queue
+    return unless content_item_id
+    payload = Presenters::MessageQueuePresenter.present(
+      content_item,
+      state_fallback_order: [:published],
+      update_type: broadcast_update_type,
+    )
+
+    PublishingAPI.service(:queue_publisher).send_message(payload)
+  end
+
+  def update_content_store
     if params[:delete]
       delete_from_content_store
     else
@@ -21,8 +41,6 @@ class PresentedContentStoreWorker
   rescue => e
     handle_error(e)
   end
-
-private
 
   def send_to_content_store
     if content_item_id
@@ -75,11 +93,15 @@ private
   end
 
   def content_item
-    ContentItem.find(content_item_id)
+    @content_item ||= ContentItem.find(content_item_id)
   end
 
   def enqueue_dependency_check?
     params.fetch(:enqueue_dependency_check, true)
+  end
+
+  def broadcast_update_type
+    payload[:broadcast_update_type] || content_item.update_type
   end
 
   def enqueue_dependencies

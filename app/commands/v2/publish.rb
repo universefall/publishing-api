@@ -149,17 +149,9 @@ module Commands
       end
 
       def send_downstream(content_item, update_type)
-        return unless downstream
-
-        queue_payload = Presenters::MessageQueuePresenter.present(
-          content_item,
-          state_fallback_order: [:published],
-          update_type: update_type
-        )
-
-        PublishingAPI.service(:queue_publisher).send_message(queue_payload)
-
-        return if pathless?(content_item)
+        # This is based on the assumption that we don't need to broadcast
+        # content items to the message queue that lack a base path.
+        return if !downstream || pathless?(content_item)
 
         queue = update_type == 'republish' ? PresentedContentStoreWorker::LOW_QUEUE : PresentedContentStoreWorker::HIGH_QUEUE
 
@@ -167,6 +159,8 @@ module Commands
           queue,
           content_store: Adapters::ContentStore,
           payload: { content_item_id: content_item.id, payload_version: event.id },
+          broadcast: true,
+          broadcast_update_type: update_type
         )
       end
     end

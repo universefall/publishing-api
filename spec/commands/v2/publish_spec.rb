@@ -55,19 +55,6 @@ RSpec.describe Commands::V2::Publish do
         payload.delete(:update_type)
       end
 
-      context "with an update_type stored on the draft content item" do
-        before do
-          draft_item.update_attributes!(update_type: "major")
-        end
-
-        it "uses the update_type from the draft content item" do
-          expect(PublishingAPI.service(:queue_publisher)).to receive(:send_message)
-            .with(hash_including(update_type: "major"))
-
-          described_class.call(payload)
-        end
-      end
-
       context "without an update_type stored on the draft content item" do
         before do
           draft_item.update_attributes!(update_type: nil)
@@ -219,11 +206,6 @@ RSpec.describe Commands::V2::Publish do
       context "when the 'downstream' parameter is false" do
         it "does not send any requests to any content store" do
           expect(PresentedContentStoreWorker).not_to receive(:perform_async)
-          described_class.call(payload, downstream: false)
-        end
-
-        it "does not send any messages on the message queue" do
-          expect(PublishingAPI.service(:queue_publisher)).not_to receive(:send_message)
           described_class.call(payload, downstream: false)
         end
       end
