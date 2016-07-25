@@ -1,16 +1,19 @@
 module Presenters
   module Queries
     class ExpandedLinkSet
-      def initialize(content_id:, state_fallback_order:, locale_fallback_order: ContentItem::DEFAULT_LOCALE, visited_content_ids: [], recursing_type: nil)
+      def initialize(content_id:, state_fallback_order:, locale_fallback_order: ContentItem::DEFAULT_LOCALE, visited_content_ids: [], recursing_type: nil, web_content_items: nil)
         @content_id = content_id
         @state_fallback_order = Array(state_fallback_order)
         @locale_fallback_order = Array(locale_fallback_order)
         @visited_content_ids = visited_content_ids
         @recursing_type = recursing_type
+        @web_content_items = web_content_items
       end
 
       def links
         if top_level?
+          @web_content_items ||= get_web_content_items
+
           dependees.merge(dependents).merge(translations)
         else
           dependees
@@ -19,7 +22,27 @@ module Presenters
 
     private
 
-      attr_reader :state_fallback_order, :locale_fallback_order, :content_id, :visited_content_ids, :recursing_type
+      attr_reader :state_fallback_order, :locale_fallback_order, :content_id, :visited_content_ids, :recursing_type, :web_content_items
+
+      def get_web_content_items
+        dependees_content_ids = ::Queries::ContentDependencies.new(
+          content_id: content_id,
+          dependent_lookup: ::Queries::GetDependees.new,
+        ).call
+
+        dependents_content_ids = ::Queries::ContentDependencies.new(
+          content_id: content_id,
+          dependent_lookup: ::Queries::GetDependents.new,
+        ).call
+
+        ::Queries::GetWebContentItems.(
+          ::Queries::GetContentItemIdsWithFallbacks.(
+            dependees_content_ids + dependents_content_ids,
+            locale_fallback_order: locale_fallback_order,
+            state_fallback_order: state_fallback_order
+          )
+        )
+      end
 
       def top_level?
         visited_content_ids.empty?
@@ -110,13 +133,9 @@ module Presenters
       end
 
       def web_content_items(target_content_ids)
-        ::Queries::GetWebContentItems.(
-          ::Queries::GetContentItemIdsWithFallbacks.(
-            target_content_ids,
-            locale_fallback_order: locale_fallback_order,
-            state_fallback_order: state_fallback_order
-          )
-        )
+        target_content_ids.collect do |content_id|
+          web_content_items.fetch(content_id)
+        end
       end
 
       def translations
