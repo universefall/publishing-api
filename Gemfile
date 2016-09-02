@@ -32,6 +32,13 @@ end
 gem "oj", "~> 2.16.1"
 gem "oj_mimic_json", "~> 1.0.1"
 
+if ENV["EXPERIMENTS_DEV"]
+  gem "async_experiments", path: "../async_experiments"
+else
+  # no version provided as this branch is supposed to use latest version
+  gem "async_experiments"
+end
+
 group :development, :test do
   gem "pry"
   gem "pry-byebug"

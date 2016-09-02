@@ -1,5 +1,9 @@
+require "async_experiments/experiment_control"
+
 module V2
   class ContentItemsController < ApplicationController
+    include AsyncExperiments::ExperimentControl
+
     def index
       doc_type = query_params.fetch(:document_type) { query_params.fetch(:content_format) }
       pagination = Pagination.new(query_params)
@@ -16,9 +20,26 @@ module V2
     end
 
     def linkables
-      render json: Queries::GetLinkables.new(
-        document_type: query_params.fetch(:document_type),
-      ).call
+      candidate = {
+        worker: LinkablesCandidate,
+        args: [query_params.fetch(:document_type)],
+      }
+
+      presented = experiment_control(:linkables, candidate: candidate) {
+        Queries::GetContentCollection.new(
+          document_type: query_params.fetch(:document_type),
+          fields: %w(
+            title
+            content_id
+            publication_state
+            base_path
+            internal_name
+          ),
+          pagination: NullPagination.new
+        ).call
+      }
+
+      render json: presented
     end
 
     def show

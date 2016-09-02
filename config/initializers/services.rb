@@ -47,3 +47,4 @@ end
 statsd_client = Statsd.new("localhost")
 statsd_client.namespace = "govuk.app.publishing-api"
 PublishingAPI.register_service(name: :statsd, client: statsd_client)
+AsyncExperiments.statsd = statsd_client

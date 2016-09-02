@@ -1,44 +1,18 @@
 class DebugController < ApplicationController
   skip_before_action :require_signin_permission!
+  before_action :validate_experiment_name, only: [:experiment]
 
   def show
     @presenter = Presenters::DebugPresenter.new(params[:content_id])
   end
 
   def experiment
-    mismatched_responses = Sidekiq.redis { |redis|
-      redis.lrange("experiments:#{params[:experiment]}:mismatches", 0, -1)
-    }
-
-    @mismatched_responses = mismatched_responses.map { |json|
-      parsed = JSON.parse(json)
-
-      missing, other = parsed.partition {|(operator, _, _)|
-        operator == "-"
-      }
-
-      extra, changed = other.partition {|(operator, _, _)|
-        operator == "+"
-      }
-
-      missing, extra = fix_ordering_issues(missing, extra)
-
-      {
-        missing: missing,
-        extra: extra,
-        changed: changed,
-      }
-    }
+    @mismatched_responses = AsyncExperiments.get_experiment_data(params[:experiment])
   end
 
 private
 
-  def fix_ordering_issues(missing, extra)
-    duplicates = missing.map(&:last) & extra.map(&:last)
-
-    missing = missing.reject { |(_, _, entry)| duplicates.include?(entry) }
-    extra = extra.reject { |(_, _, entry)| duplicates.include?(entry) }
-
-    [missing, extra]
+  def validate_experiment_name
+    raise "Experiment names don't contain `:`" if params[:experiment].include?(":")
   end
 end

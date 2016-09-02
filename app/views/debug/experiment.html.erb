@@ -2,23 +2,23 @@
   <% @mismatched_responses.each_with_index do |mismatch, i| %>
     <li>
       <ul>
-        <li><a href="#missing-#{i}">Missing</a></li>
-        <li><a href="#extra-#{i}">Extra</a></li>
-        <li><a href="#changed-#{i}">Changed</a></li>
+        <li><a href="#missing-<%= i %>">Missing</a></li>
+        <li><a href="#extra-<%= i %>">Extra</a></li>
+        <li><a href="#changed-<%= i %>">Changed</a></li>
       </ul>
 
-      <h3 id="missing-#{i}">Missing from candidate</h3>
-      <% mismatch[:missing].each do |(_, _, entry)| %>
+      <h3 id="missing-<%= i %>">Missing from candidate</h3>
+      <% mismatch[:missing].each do |entry| %>
         <pre><%= PP.pp(entry, "") %></pre>
       <% end %>
 
-      <h3 id="extra-#{i}">Extra in candidate</h3>
-      <% mismatch[:extra].each do |(_, _, entry)| %>
+      <h3 id="extra-<%= i %>">Extra in candidate</h3>
+      <% mismatch[:extra].each do |entry| %>
         <pre><%= PP.pp(entry, "") %></pre>
       <% end %>
 
-      <h3 id="changed-#{i}">Changed in candidate</h3>
-      <% mismatch[:changed].each do |(_, _, entry)| %>
+      <h3 id="changed-<%= i %>">Changed in candidate</h3>
+      <% mismatch[:changed].each do |entry| %>
         <pre><%= PP.pp(entry, "") %></pre>
       <% end %>
     </li>
