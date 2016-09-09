@@ -52,6 +52,22 @@ class ContentItem < ActiveRecord::Base
     !self.requires_base_path? && !Location.exists?(content_item: self)
   end
 
+  # FIXME: This is here just for the process of applying govspeak rendering
+  def details_for_govspeak_conversion
+    return details unless details.is_a?(Hash)
+
+    value_without_html = lambda do |value|
+      wrapped = Array.wrap(value)
+      html = wrapped.find { |item| item.is_a?(Hash) && item[:content_type] == "text/html" }
+      govspeak = wrapped.find { |item| item.is_a?(Hash) && item[:content_type] == "text/govspeak" }
+      html && govspeak ? wrapped - [html] : value
+    end
+
+    details.deep_dup.each_with_object({}) do |(key, value), memo|
+      memo[key] = value_without_html.call(value)
+    end
+  end
+
 private
 
   def renderable_content?
