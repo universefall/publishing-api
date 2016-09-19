@@ -11,8 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160906160955) do
-
+ActiveRecord::Schema.define(version: 20160919101647) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -24,6 +23,17 @@ ActiveRecord::Schema.define(version: 20160906160955) do
   end
 
   add_index "access_limits", ["content_item_id"], name: "index_access_limits_on_content_item_id", using: :btree
+
+  create_table "content_histories", force: :cascade do |t|
+    t.json     "diff",             null: false
+    t.string   "content_id",       null: false
+    t.integer  "version",          null: false
+    t.integer  "previous_version", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "content_histories", ["content_id"], name: "index_content_histories_on_content_id", using: :btree
 
   create_table "content_items", force: :cascade do |t|
     t.string   "content_id"
@@ -94,7 +104,6 @@ ActiveRecord::Schema.define(version: 20160906160955) do
     t.string   "link_type",         null: false
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
-    t.json     "passthrough_hash"
   end
 
   add_index "links", ["link_set_id", "target_content_id"], name: "index_links_on_link_set_id_and_target_content_id", using: :btree

@@ -21,7 +21,7 @@ gem 'bunny', '2.5.1'
 gem 'whenever', '0.9.4', require: false
 gem "govuk_sidekiq", "~> 0.0"
 gem "json-schema", require: false
-gem "hashdiff"
+gem "hashdiff", require: false
 gem "sidekiq-unique-jobs", require: false
 
 group :development do
