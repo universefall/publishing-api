@@ -48,12 +48,15 @@ module DataHygiene
       # without spaces - this could mean we miss ordering issues but they are
       # unlikely to occur here
       without_spaces = diff.map { |s| s.gsub(/\s+/, "") }
-      without_spaces_and_rel_external = without_spaces.map { |s| s.gsub(/rel="external"/, "") }
+      common_attributes = /(rel="external"|class="last-child")/
+      without_spaces_and_common_attributes = without_spaces.map do |s|
+        s.gsub(common_attributes, "")
+      end
       diff.reject do |s|
         check = (s[0] == "+" ? "-" : "+") + s[1..-1].gsub(/\s+/, "")
         next true if without_spaces.include?(check)
         # we have issues that some attachments are published with rel="external"
-        without_spaces_and_rel_external.include?(check.gsub(/rel="external"/, ""))
+        without_spaces_and_common_attributes.include?(check.gsub(common_attributes, ""))
       end
     end
 
