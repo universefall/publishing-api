@@ -60,7 +60,12 @@ class ContentItem < ActiveRecord::Base
       wrapped = Array.wrap(value)
       html = wrapped.find { |item| item.is_a?(Hash) && item[:content_type] == "text/html" }
       govspeak = wrapped.find { |item| item.is_a?(Hash) && item[:content_type] == "text/govspeak" }
-      html && govspeak ? wrapped - [html] : value
+      if html && govspeak
+        govspeak[:content] = replace_specialist_publisher_inline_attachments(govspeak[:content], details[:attachments])
+        wrapped - [html]
+      else
+        value
+      end
     end
 
     details.deep_dup.each_with_object({}) do |(key, value), memo|
@@ -76,5 +81,38 @@ private
 
   def requires_rendering_app?
     renderable_content? && document_type != "contact"
+  end
+
+
+  # FIXME: This is here just for the process of applying govspeak rendering
+  def replace_specialist_publisher_inline_attachments(govspeak, attachments)
+    return nil unless govspeak
+
+    sanitise_filename = lambda do |filename|
+      filename.split("/").last.downcase.gsub(/[^a-zA-Z0-9]/, "_")
+    end
+
+    find_specialist_publisher_attachment = lambda do |identifying_string|
+      return nil unless attachments
+      sanitised_input = sanitise_filename.call(identifying_string)
+      attachments.detect do |a|
+        sanitised_match = sanitise_filename.call(a[:url] || a[:content_id])
+        sanitised_input == sanitised_match
+      end
+    end
+
+    replace_images = lambda do |_|
+      attachment = find_specialist_publisher_attachment.call(Regexp.last_match[1])
+      attachment ? "![#{attachment[:title]}](#{attachment[:url]})" : ""
+    end
+
+    replace_attachments = lambda do |_|
+      attachment = find_specialist_publisher_attachment.call(Regexp.last_match[1])
+      attachment ? "[embed:attachments:inline:#{attachment[:content_id]}]" : ""
+    end
+
+    govspeak
+      .gsub(/!\[InlineAttachment:(.+?)\]/, &replace_images)
+      .gsub(/\[InlineAttachment:(.+?)\]/, &replace_attachments)
   end
 end
