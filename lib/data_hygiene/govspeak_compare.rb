@@ -42,22 +42,20 @@ module DataHygiene
 
     def html_diff(old_html, new_html)
       diff = Diffy::Diff.new(old_html, new_html, context: 1)
-      # remove matches and empty lines
+
       diff = diff.reject { |s| s.match(/^ /) || s.match(/^(\+|-)$/) }
-      # we don't include items where there is an identical one matching it
-      # without spaces - this could mean we miss ordering issues but they are
-      # unlikely to occur here
-      without_spaces = diff.map { |s| s.gsub(/\s+/, "") }
-      common_attributes = /(rel="external"|class="last-child")/
-      without_spaces_and_common_attributes = without_spaces.map do |s|
-        s.gsub(common_attributes, "")
-      end
+
       diff.reject do |s|
-        check = (s[0] == "+" ? "-" : "+") + s[1..-1].gsub(/\s+/, "")
-        next true if without_spaces.include?(check)
-        # we have issues that some attachments are published with rel="external"
-        without_spaces_and_common_attributes.include?(check.gsub(common_attributes, ""))
+        check = (s[0] == "+" ? "-" : "+") + s[1..-1]
+        diff.any? { |elem| basically_match(elem) == basically_match(check) }
       end
+    end
+
+    def basically_match(s)
+      s.gsub(/<span.+?>/, "") #span tags
+      .gsub(/<\/span>/, "") #end span
+      .gsub(/(rel="external"|class="last-child")/, "") #common attributes
+      .gsub(/\s+/, "") #whitespace
     end
 
     def format_published_html
