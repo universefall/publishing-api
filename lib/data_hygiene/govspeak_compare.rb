@@ -52,8 +52,7 @@ module DataHygiene
     end
 
     def basically_match(s)
-      s.gsub(/<span.+?>/, "") #span tags
-      .gsub(/<\/span>/, "") #end span
+      s.gsub(/<span.+class=\"attachment\-inline\">(.+)<\/span>/, '\1') #span tags
       .gsub(/(rel="external"|class="last-child")/, "") #common attributes
       .gsub(/\s+/, "") #whitespace
     end
