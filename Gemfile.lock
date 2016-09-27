@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/alphagov/govspeak
-  revision: e0d8aa090a44d38bcd3249ad8e10259a8e317b59
+  revision: aadccd8a92a73eba5610ce42caaf638e85b14a47
   branch: options-as-hashes
   specs:
     govspeak (4.0.0)
