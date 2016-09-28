@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/alphagov/govspeak
-  revision: 37551244792df2ce8cb9c1782ff40e00d2e4f463
-  branch: options-as-hashes
+  revision: 8a55b5fbb98a04156ecac06eaae5411dd2e3d4c3
+  branch: master
   specs:
     govspeak (4.0.0)
       actionview (~> 4.1)
