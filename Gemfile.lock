@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/alphagov/govspeak
-  revision: 8a55b5fbb98a04156ecac06eaae5411dd2e3d4c3
-  branch: master
+  revision: fa04f00d8350c5f7f84aa61eadd2a79d8d6e1ee0
+  branch: image-attachments
   specs:
     govspeak (4.0.0)
       actionview (~> 4.1)

@@ -23,7 +23,7 @@ gem "govuk_sidekiq", "~> 1.0.1"
 gem "json-schema", require: false
 gem "hashdiff"
 gem "sidekiq-unique-jobs", require: false
-gem "govspeak", git: "https://github.com/alphagov/govspeak", branch: "master", require: false
+gem "govspeak", git: "https://github.com/alphagov/govspeak", branch: "image-attachments", require: false
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
