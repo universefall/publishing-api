@@ -41,6 +41,7 @@ module DataHygiene
     end
 
     def html_diff(old_html, new_html)
+      old_html = apply_old_html_common_changes(old_html)
       diff = Diffy::Diff.new(old_html, new_html, context: 1)
 
       diff = diff.reject { |s| s.match(/^ /) || s.match(/^(\+|-)$/) }
@@ -49,6 +50,13 @@ module DataHygiene
         check = (s[0] == "+" ? "-" : "+") + s[1..-1]
         diff.any? { |elem| basically_match(elem) == basically_match(check) }
       end
+    end
+
+    def apply_old_html_common_changes(html)
+      # In specialist publisher we have a lot of new lines in inline attachments
+      # which causes us trouble as we only allow inline attachments to be on a single line
+      regex = %r{<a (rel="external" )?href="https:\/\/assets.digital.cabinet-office.gov.uk\/.*?">((?:.|\n)*?)<\/a>}
+      html.gsub(regex) { |inner_content| inner_content.gsub(/\n/, " ") }
     end
 
     def basically_match(s)
