@@ -103,7 +103,7 @@ private
 
     replace_images = lambda do |_|
       attachment = find_specialist_publisher_attachment.call(Regexp.last_match[1])
-      attachment ? "![#{attachment[:title]}](#{attachment[:url]})" : ""
+      attachment ? "[embed:attachments:image:#{attachment[:content_id]}]" : ""
     end
 
     replace_attachments = lambda do |_|
