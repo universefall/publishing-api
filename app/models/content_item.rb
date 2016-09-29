@@ -89,7 +89,7 @@ private
     return nil unless govspeak
 
     sanitise_filename = lambda do |filename|
-      filename.split("/").last.downcase.gsub(/[^a-zA-Z0-9]/, "_")
+      CGI::unescape(filename).split("/").last.downcase.gsub(/[^a-zA-Z0-9]/, "_")
     end
 
     find_specialist_publisher_attachment = lambda do |identifying_string|
