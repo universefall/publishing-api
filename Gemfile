@@ -28,6 +28,7 @@ gem "hashdiff"
 gem "sidekiq-unique-jobs", require: false
 gem "govspeak", "~> 5.0.2"
 gem "diffy", "~> 3.1", require: false
+gem "appsignal"
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
