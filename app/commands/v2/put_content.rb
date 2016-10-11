@@ -15,6 +15,13 @@ module Commands
         PathReservation.reserve_base_path!(base_path, publishing_app) if content_with_base_path?
         content_item = find_previously_drafted_content_item
 
+        # If no previously drafted item exist we want to lock the table
+        # to avoid duplicate content items
+        unless content_item || find_previously_published_content_items
+          ActiveRecord::Base.connection.execute('LOCK TABLE content_items')
+          content_item = find_previously_drafted_content_item
+        end
+
         if content_item
           update_existing_content_item(content_item)
         else
@@ -114,6 +121,11 @@ module Commands
         filter.filter(locale: locale, state: "draft").first
       end
 
+      def find_previously_published_content_items
+        filter = ContentItemFilter.new(scope: pessimistic_content_item_scope)
+        filter.filter(locale: locale, state: %w(published unpublished))
+      end
+
       def clear_draft_items_of_same_locale_and_base_path(content_item, locale, base_path)
         SubstitutionHelper.clear!(
           new_item_document_type: content_item.document_type,
@@ -192,9 +204,7 @@ module Commands
 
       def previously_published_item
         @previously_published_item ||= (
-          filter = ContentItemFilter.new(scope: pessimistic_content_item_scope)
-          content_items = filter.filter(state: %w(published unpublished), locale: locale)
-          UserFacingVersion.latest(content_items)
+          UserFacingVersion.latest(find_previously_published_content_items)
         ) || ITEM_NOT_FOUND
       end
 
