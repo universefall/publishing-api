@@ -10,10 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161013104311) do
+ActiveRecord::Schema.define(version: 20161021161826) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
   create_table "access_limits", force: :cascade do |t|
     t.json     "users",           default: [], null: false
     t.datetime "created_at",                   null: false
@@ -62,7 +63,7 @@ ActiveRecord::Schema.define(version: 20161013104311) do
 
   create_table "events", force: :cascade do |t|
     t.string   "action",                  null: false
-    t.json     "payload",    default: {}, null: false
+    t.json     "payload",    default: {}
     t.string   "user_uid"
     t.datetime "created_at"
     t.datetime "updated_at"
